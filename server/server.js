@@ -8,6 +8,7 @@ import cookieParser from 'cookie-parser';
 import rateLimit from 'express-rate-limit';
 import connectDB from './config/db.js';
 import { errorHandler } from './middlewares/errorHandler.js';
+import apiRoutes from './routes/index.js';
 
 dotenv.config();
 
@@ -31,6 +32,9 @@ app.use(cookieParser());
 app.get('/', (req, res) => {
     res.send('ShopyZone API is running...');
 });
+
+// API routes
+app.use('/api', apiRoutes)
 
 
 // Error handling middleware
