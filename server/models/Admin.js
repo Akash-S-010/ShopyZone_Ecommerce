@@ -33,7 +33,12 @@ const adminSchema = new mongoose.Schema({
     totalSalesVolume: {
         type: Number,
         default: 0
-    }
+    },
+    role: {
+        type: String,
+        enum: ["user", "admin", "seller"],
+        default: "admin",
+    },
 
 }, { timestamps: true });
 

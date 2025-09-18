@@ -36,7 +36,12 @@ const sellerSchema = new mongoose.Schema({
       requestedAt: { type: Date, default: Date.now },
       paidAt: Date
     }
-  ]
+  ],
+  role: {
+    type: String,
+    enum: ["user", "admin", "seller"],
+    default: "seller",
+  },
 }, { timestamps: true });
 
 export default mongoose.model("Seller", sellerSchema);
