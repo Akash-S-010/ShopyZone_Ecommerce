@@ -1,6 +1,6 @@
 import User from "../models/User.js";
 import bcrypt from "bcryptjs";
-import { generateToken, generateRefreshToken } from "../utils/token.js";
+import { generateToken } from "../utils/token.js";
 import {generateOTP} from "../utils/otp.js";
 import { sendOTPEmail } from "../utils/email.js";
 
@@ -66,6 +66,13 @@ export const signupUser = async (req, res, next) => {
     try {
       // Send OTP email
       await sendOTPEmail(user.email, otp, "Your ShopyZone verification code");
+      const token = generateToken(user._id, user);
+      res.cookie("token", token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "strict",
+        maxAge: 15 * 60 * 1000, // 15 minutes
+      });
       return res.status(201).json({ message: "Signup successful. Please verify OTP sent to your email." });
     } catch (emailError) {
       return res.status(201).json({ 
@@ -132,7 +139,7 @@ export const resendOTP = async (req, res) => {
         await user.save();
 
         // -----------Send OTP via email-----------
-        await sendOTPEmail(email, otp, "Your ShopyZone verification code");
+        await sendOTPEmail(email, otp, "Your verification code");
 
         res.json({ message: "New OTP sent to your email." });
 
@@ -169,12 +176,12 @@ export const loginUser = async (req, res) => {
     }
 
     const token = generateToken(user._id, user);
-    const refreshToken = generateRefreshToken(user._id, user);
 
-    res.cookie("refreshToken", refreshToken, {
+    res.cookie("token", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "strict",
+      maxAge: 15 * 60 * 1000, // 15 minutes
     });
 
     return res.status(200).json({
@@ -213,7 +220,7 @@ export const forgotPassword = async (req, res, next) => {
 
     try {
       // Use the dedicated OTP email function for consistent styling
-      await sendOTPEmail(user.email, otp, "Your ShopyZone password reset code");
+      await sendOTPEmail(user.email, otp, "Your password reset code");
       return res.json({ message: "OTP sent to your email" });
     } catch (emailError) {
       // Revert the OTP changes since email failed
@@ -255,4 +262,14 @@ export const resetPassword = async (req, res, next) => {
   } catch (err) {
     next(err);
   }
+};
+
+
+// ---------------- LOGOUT ----------------
+export const logoutUser = async (req, res) => {
+  res.cookie("token", "", {
+    httpOnly: true,
+    expires: new Date(0),
+  });
+  res.status(200).json({ message: "Logged out successfully" });
 };
