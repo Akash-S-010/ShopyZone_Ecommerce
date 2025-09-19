@@ -47,6 +47,12 @@ const userSchema = new mongoose.Schema({
         match: [/^[6-9]\d{9}$/, "Please enter a valid 10-digit mobile number"],
         unique: true,
     },
+
+    isBlocked: {
+        type: Boolean,
+        default: false,
+    },
+
     role: {
         type: String,
         default: "user",

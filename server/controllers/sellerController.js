@@ -106,6 +106,10 @@ export const loginSeller = async (req, res, next) => {
       return res.status(403).json({ message: "Seller is not verified. Please verify your account." });
     }
 
+    if(seller.isBlocked) {
+      return res.status(403).json({ message: "Sorry, your account is blocked by admin" });
+    }
+
     const isMatch = await bcrypt.compare(password, seller.password);
     if (!isMatch) {
       return res.status(400).json({ message: "Invalid credentials" });

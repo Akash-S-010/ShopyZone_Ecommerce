@@ -116,7 +116,7 @@ export const verifyOtp = async (req, res, next) => {
 
 
 // -----------Resent OTP------------
-export const resendOTP = async (req, res) => {
+export const resendOTP = async (req, res, next) => {
     try {
         const { email } = req.body;
 
@@ -150,7 +150,7 @@ export const resendOTP = async (req, res) => {
 
 
 // ---------------- LOGIN ----------------
-export const loginUser = async (req, res) => {
+export const loginUser = async (req, res, next) => {
   try {
     const { login, password } = req.body;
 
@@ -166,8 +166,12 @@ export const loginUser = async (req, res) => {
       return res.status(400).json({ message: "Invalid credentials" });
     }
 
+    if(user.isBlocked) {
+      return res.status(403).json({ message: "Sorry, your account is blocked by admin" });
+    }
+
     if (!user.isVerified) {
-      return res.status(403).json({ message: "User is blocked" });
+      return res.status(403).json({ message: "User is not verified" });
     }
 
     const isMatch = await bcrypt.compare(password, user.password);

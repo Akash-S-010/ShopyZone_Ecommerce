@@ -8,15 +8,19 @@ const sellerSchema = new mongoose.Schema({
   password: { type: String, required: true },
   role: { type: String, default: "seller" },
   isVerified: { type: Boolean, default: false },
+  isBlocked: {
+    type: Boolean,
+    default: false,
+  },
 
   // Store Info
   shopName: { type: String, required: true },
   shopLogo: { type: String },
   businessAddress: {
     street: { type: String, required: true },
-    city:   { type: String, required: true },
-    state:  { type: String, required: true },
-    pincode:{ type: String, required: true },
+    city: { type: String, required: true },
+    state: { type: String, required: true },
+    pincode: { type: String, required: true },
   },
   storeDescription: { type: String },
 
