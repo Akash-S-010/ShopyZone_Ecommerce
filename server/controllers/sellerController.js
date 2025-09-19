@@ -7,10 +7,10 @@ import { sendOTPEmail } from "../utils/email.js";
 // Seller Registration
 export const registerSeller = async (req, res, next) => {
   try {
-    const { name, email, phone, password, shopName, street, city, state, pincode } = req.body;
+    const { name, email, phone, password, shopName, street, city, state, pincode, shopLogo } = req.body;
 
     // Validate required fields
-    if (!name || !email || !phone || !password || !shopName || !street || !city || !state || !pincode) {
+    if (!name || !email || !phone || !password || !shopName || !street || !city || !state || !pincode || !shopLogo) {
       return res.status(400).json({ message: "All fields are required" });
     }
 
@@ -28,6 +28,7 @@ export const registerSeller = async (req, res, next) => {
       existingSeller.phone = phone;
       existingSeller.password = await bcrypt.hash(password, 10);
       existingSeller.shopName = shopName;
+      existingSeller.shopLogo = shopLogo;
       existingSeller.businessAddress = { street, city, state, pincode };
       existingSeller.otp = otp;
       existingSeller.otpExpiresAt = otpExpiresAt;
@@ -61,6 +62,7 @@ export const registerSeller = async (req, res, next) => {
       phone,
       password: hashedPassword,
       shopName,
+      shopLogo,
       businessAddress: { street, city, state, pincode },
       otp,
       otpExpiresAt,
@@ -216,10 +218,11 @@ export const logoutSeller = (req, res) => {
 
 // ----------------Get User ----------------
 export const getSeller = async (req, res, next) => {
+  const seller = req.seller;
   try {
-    const user = await Seller.findById(req.user.id).select("-password");
-    if (!user) return res.status(404).json({ message: "User not found" });
-    res.json(user);
+    const sellerData = await Seller.findById(req.seller._id).select("-password");
+    if (!sellerData) return res.status(404).json({ message: "User not found" });
+    res.json(sellerData);
   } catch (err) {
     next(err);
   }

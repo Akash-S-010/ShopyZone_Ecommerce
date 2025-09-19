@@ -11,7 +11,7 @@ router.post('/resend-otp', resendOTP);
 router.post('/forgot-password', forgotPassword);
 router.post('/reset-password', resetPassword);
 router.post('/logout', logoutUser);
-router.get('/user',checkAuth, getUser);
+router.get('/get-user',checkAuth, getUser);
 
 
 export default router;
