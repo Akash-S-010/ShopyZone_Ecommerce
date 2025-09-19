@@ -9,9 +9,15 @@ const sellerSchema = new mongoose.Schema({
   role: { type: String, default: "seller" },
   isVerified: { type: Boolean, default: false },
 
-  // Store Info (basic)
+  // Store Info
   shopName: { type: String, required: true },
-  businessAddress: { type: String, required: true },
+  shopLogo: { type: String },
+  businessAddress: {
+    street: { type: String, required: true },
+    city:   { type: String, required: true },
+    state:  { type: String, required: true },
+    pincode:{ type: String, required: true },
+  },
   storeDescription: { type: String },
 
   // Status & Verification
@@ -21,7 +27,7 @@ const sellerSchema = new mongoose.Schema({
     default: "pending",
   },
 
-  // OTP for email
+  // OTP for email/phone verification
   otp: String,
   otpExpiresAt: Date,
 }, { timestamps: true });
