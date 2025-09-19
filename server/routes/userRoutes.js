@@ -1,5 +1,6 @@
 import express from 'express';
 import { signupUser, loginUser, verifyOtp, forgotPassword, resetPassword, resendOTP, logoutUser, getUser } from '../controllers/userController.js';
+import { checkAuth } from '../middlewares/authMiddleware.js';
 const router = express.Router();
 
 
@@ -10,7 +11,7 @@ router.post('/resend-otp', resendOTP);
 router.post('/forgot-password', forgotPassword);
 router.post('/reset-password', resetPassword);
 router.post('/logout', logoutUser);
-router.get('/user', getUser);
+router.get('/user',checkAuth, getUser);
 
 
 export default router;
