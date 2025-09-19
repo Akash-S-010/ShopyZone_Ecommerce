@@ -200,12 +200,23 @@ export const resendSellerOTP = async (req, res, next) => {
 
 // ---------------- LOGOUT ----------------
 export const logoutSeller = (req, res) => {
-  res.cookie("token", "", {
+  res.clearCookie("token",{
     httpOnly: true,
-    expires: new Date(0),
     secure: process.env.NODE_ENV === "production",
     sameSite: "strict",
   });
   res.status(200).json({ message: "Logged out successfully" });
 };
 
+
+
+// ----------------Get User ----------------
+export const getSeller = async (req, res, next) => {
+  try {
+    const user = await Seller.findById(req.user.id).select("-password");
+    if (!user) return res.status(404).json({ message: "User not found" });
+    res.json(user);
+  } catch (err) {
+    next(err);
+  }
+};
