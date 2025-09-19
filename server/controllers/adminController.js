@@ -82,7 +82,7 @@ export const toggleUserBlock = async (req, res, next) => {
         }
         user.isBlocked = !user.isBlocked;
         await user.save();
-        res.status(200).json({ message: "User blocked status updated successfully" });
+        res.status(200).json({ message: `User ${user.isBlocked ? "blocked" : "unblocked"} successfully` });
     } catch (error) {
         next(error);
     }
