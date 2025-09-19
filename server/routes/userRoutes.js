@@ -13,5 +13,4 @@ router.post('/reset-password', resetPassword);
 router.post('/logout', logoutUser);
 router.get('/get-user',checkAuth, getUser);
 
-
 export default router;
