@@ -1,67 +1,94 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import useAuthStore from '../../store/authStore';
+import { Loader2 } from 'lucide-react';
 import toast from 'react-hot-toast';
+// import logo from '../../assets/logo.png';
 
 const LoginPage = () => {
-  const [login, setLogin] = useState('');
-  const [password, setPassword] = useState('');
-  const authLogin = useAuthStore((state) => state.login);
-  const loading = useAuthStore((state) => state.loading);
-  const error = useAuthStore((state) => state.error);
+  const [formData, setFormData] = useState({
+    login: '',
+    password: '',
+  });
   const navigate = useNavigate();
+  const { loginUser, isLoading, isAuthenticated } = useAuthStore();
+
+  // Redirect if already authenticated
+  if (isAuthenticated) {
+    navigate('/'); // Redirect to home or dashboard if already logged in
+  }
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const success = await authLogin(login, password);
-    if (success) {
-      toast.success('Logged in successfully!');
-      navigate('/'); // Redirect to home or dashboard
-    } else {
-      toast.error(error || 'Login failed');
+    const result = await loginUser(formData);
+    if (result.success) {
+      navigate('/');
     }
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100">
-      <div className="px-8 py-6 mt-4 text-left bg-white shadow-lg rounded-lg">
-        <h3 className="text-2xl font-bold text-center">Login to your account</h3>
-        <form onSubmit={handleSubmit}>
-          <div className="mt-4">
-            <div>
-              <label className="block" htmlFor="email">Email</label>
-              <input
-                type="text"
-                placeholder="Email or Phone"
-                className="input input-bordered w-full"
-                value={login}
-                onChange={(e) => setLogin(e.target.value)}
-              />
-            </div>
-            <div className="mt-4">
-              <label className="block" htmlFor="password">Password</label>
-              <input
-                type="password"
-                placeholder="Password"
-                className="w-full px-4 py-2 mt-2 border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-600"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
-            </div>
-            <div className="flex items-baseline justify-between">
-              <button
-                type="submit"
-                className="px-6 py-2 mt-4 text-white bg-blue-600 rounded-lg hover:bg-blue-900"
-                disabled={loading}
-              >
-                {loading ? 'Logging in...' : 'Login'}
-              </button>
-              <Link to="/register" className="text-sm text-blue-600 hover:underline">Don't have an account? Register</Link>
-            </div>
-            {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4">
+      <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
+        <div className="flex justify-center mb-6">
+          <img src="" alt="ShopyZone Logo" className="h-12" />
+        </div>
+        <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">Welcome Back to ShopyZone</h2>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label htmlFor="login" className="block text-sm font-medium text-gray-700">Email or Phone Number</label>
+            <input
+              type="text"
+              id="login"
+              name="login"
+              value={formData.login}
+              onChange={handleChange}
+              placeholder="Enter your email or phone number"
+              required
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+            />
           </div>
+          <div>
+            <label htmlFor="password" className="block text-sm font-medium text-gray-700">Password</label>
+            <input
+              type="password"
+              id="password"
+              name="password"
+              value={formData.password}
+              onChange={handleChange}
+              placeholder="Enter your password"
+              required
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+            />
+          </div>
+          <div className="flex items-center justify-between">
+            <div className="text-sm">
+              <Link to="/forgot-password" className="font-medium text-indigo-600 hover:text-indigo-500">
+                Forgot password?
+              </Link>
+            </div>
+          </div>
+          <button
+            type="submit"
+            disabled={isLoading}
+            className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+          >
+            {isLoading ? (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            ) : (
+              'Login'
+            )}
+          </button>
         </form>
+        <p className="mt-6 text-center text-sm text-gray-600">
+          Don't have an account? {''}
+          <Link to="/register" className="font-medium text-indigo-600 hover:text-indigo-500">
+            Register here
+          </Link>
+        </p>
       </div>
     </div>
   );
