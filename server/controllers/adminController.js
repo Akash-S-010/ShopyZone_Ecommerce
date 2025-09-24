@@ -2,6 +2,7 @@ import Admin from "../models/Admin.js";
 import User from "../models/User.js";
 import Seller from "../models/Seller.js";
 import { generateToken } from "../utils/token.js";
+import bcrypt from "bcrypt";
 
 
 export const adminLogin = async (req, res, next) => {
@@ -83,6 +84,31 @@ export const toggleUserBlock = async (req, res, next) => {
         user.isBlocked = !user.isBlocked;
         await user.save();
         res.status(200).json({ message: `User ${user.isBlocked ? "blocked" : "unblocked"} successfully` });
+    } catch (error) {
+        next(error);
+    }
+};
+
+// ---------------- UPDATE SELLER STATUS ----------------
+export const updateSellerStatus = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+        const { status } = req.body;
+
+        if (!status || !["approved", "rejected"].includes(status)) {
+            return res.status(400).json({ message: "Invalid status provided. Must be 'approved' or 'rejected'." });
+        }
+
+        const seller = await Seller.findById(id);
+
+        if (!seller) {
+            return res.status(404).json({ message: "Seller not found" });
+        }
+
+        seller.status = status;
+        await seller.save();
+
+        res.status(200).json({ message: `Seller status updated to ${status} successfully` });
     } catch (error) {
         next(error);
     }

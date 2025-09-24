@@ -1,4 +1,5 @@
 import Product from "../models/Product.js";
+import Seller from "../models/Seller.js";
 
 // -------- CREATE PRODUCT --------
 export const createProduct = async (req, res, next) => {
@@ -10,6 +11,13 @@ export const createProduct = async (req, res, next) => {
     }
 
     const sellerId = req.seller?._id || req.admin?._id;
+
+    if (req.seller) {
+        const seller = await Seller.findById(sellerId);
+        if (!seller || seller.status !== "approved") {
+            return res.status(403).json({ message: "Seller not approved to add products." });
+        }
+    }
 
     const product = await Product.create({
       name,
