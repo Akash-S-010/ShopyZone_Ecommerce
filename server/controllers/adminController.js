@@ -2,7 +2,7 @@ import Admin from "../models/Admin.js";
 import User from "../models/User.js";
 import Seller from "../models/Seller.js";
 import { generateToken } from "../utils/token.js";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 
 
 export const adminLogin = async (req, res, next) => {
