@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import useAuthStore from '../../store/authStore';
 import { toast } from 'react-hot-toast';
+import Loader from '../../components/shared/Loader';
 
 const ForgotPasswordPage = () => {
   const [email, setEmail] = useState('');
@@ -43,7 +44,7 @@ const ForgotPasswordPage = () => {
                 className="px-6 py-2 mt-4 text-white bg-blue-600 rounded-lg hover:bg-blue-900"
                 disabled={isLoading}
               >
-                {isLoading ? 'Sending...' : 'Send Reset Link'}
+                {isLoading ? <Loader size={20} className="inline-block mr-2" colorClass="text-white" /> : 'Send Reset Link'}
               </button>
             </div>
             {error && <p className="text-red-500 text-sm mt-2">{error}</p>}

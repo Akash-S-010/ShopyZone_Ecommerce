@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import Loader from '../shared/Loader';
 
 const ProductForm = ({ initialData = {}, onSubmit, isLoading, buttonText }) => {
   const [formData, setFormData] = useState({
@@ -161,7 +162,7 @@ const ProductForm = ({ initialData = {}, onSubmit, isLoading, buttonText }) => {
       </div>
 
       <button type="submit" disabled={isLoading} className="w-full px-4 py-2 text-white bg-blue-600 rounded-md hover:bg-blue-700">
-        {isLoading ? 'Processing...' : buttonText}
+        {isLoading ? <Loader size={20} className="inline-block mr-2" colorClass="text-white" /> : buttonText}
       </button>
     </form>
   );

@@ -3,6 +3,7 @@ import useSellerAuthStore from '../../store/sellerAuthStore';
 import { User } from 'lucide-react'; // For the profile icon
 import EditSellerProfileForm from '../../components/seller/EditSellerProfileForm';
 import { toast } from 'react-hot-toast';
+import Loader from '../../components/shared/Loader';
 
 const SellerProfilePage = () => {
   const { seller, updateSellerProfile, isLoading } = useSellerAuthStore();
@@ -103,7 +104,7 @@ const SellerProfilePage = () => {
             </>
           )
         ) : (
-          <p className="text-center text-lg mt-8">Loading seller profile...</p>
+          <Loader />
         )}
       </div>
     </div>

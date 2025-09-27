@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from '../../config/axios';
 import { toast } from 'react-hot-toast';
 import ProductForm from '../../components/seller/ProductForm';
+import Loader from '../../components/shared/Loader';
 
 const CreateProductPage = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -26,7 +27,7 @@ const CreateProductPage = () => {
   return (
     <div className="container mx-auto p-4">
       <h2 className="text-2xl font-bold mb-4">Create New Product</h2>
-      <ProductForm onSubmit={handleSubmit} isLoading={isLoading} buttonText="Create Product" />
+      {isLoading ? <Loader /> : <ProductForm onSubmit={handleSubmit} isLoading={isLoading} buttonText="Create Product" />}
     </div>
   );
 };

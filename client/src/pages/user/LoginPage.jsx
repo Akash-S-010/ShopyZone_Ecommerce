@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import useAuthStore from '../../store/authStore';
-import { Loader2 } from 'lucide-react';
+// import { Loader2 } from 'lucide-react';
 import toast from 'react-hot-toast';
+import Loader from '../../components/shared/Loader';
 // import logo from '../../assets/logo.png';
 
 const LoginPage = () => {
@@ -77,7 +78,7 @@ const LoginPage = () => {
             className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
           >
             {isLoading ? (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              <Loader size={20} className="mr-2" colorClass="text-white" />
             ) : (
               'Login'
             )}

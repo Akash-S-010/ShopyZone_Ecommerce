@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import useAuthStore from '../../store/authStore';
 import { toast } from 'react-hot-toast';
+import Loader from '../../components/shared/Loader';
 
 const VerifyOtpForPasswordResetPage = () => {
   const [otp, setOtp] = useState('');
@@ -81,7 +82,7 @@ const VerifyOtpForPasswordResetPage = () => {
                 className="px-6 py-2 mt-4 text-white bg-blue-600 rounded-lg hover:bg-blue-900"
                 disabled={isLoading}
               >
-                {isLoading ? 'Resetting...' : 'Reset Password'}
+                {isLoading ? <Loader size={20} className="inline-block mr-2" colorClass="text-white" /> : 'Reset Password'}
               </button>
             </div>
             {error && <p className="text-red-500 text-sm mt-2">{error}</p>}

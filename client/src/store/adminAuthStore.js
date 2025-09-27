@@ -39,7 +39,7 @@ const useAdminAuthStore = create((set) => ({
     set({ isLoading: true, error: null });
     try {
       const res = await axios.post('/admin/login', credentials);
-      set({ admin: res.data.admin, isAuthenticated: true, isLoading: false });
+      set({ admin: res.data.user, isAuthenticated: true, isLoading: false });
       toast.success(res.data.message);
       return { success: true, message: res.data.message };
     } catch (error) {

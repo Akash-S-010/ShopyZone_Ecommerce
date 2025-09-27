@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { toast } from 'react-hot-toast';
+import Loader from '../shared/Loader';
 
 const EditSellerProfileForm = ({ initialData, onSubmit, onCancel, isLoading }) => {
   const [formData, setFormData] = useState({
@@ -98,7 +99,7 @@ const EditSellerProfileForm = ({ initialData, onSubmit, onCancel, isLoading }) =
           disabled={isLoading}
           className="px-4 py-2 text-white bg-blue-600 rounded-md hover:bg-blue-700"
         >
-          {isLoading ? 'Saving...' : 'Save Changes'}
+          {isLoading ? <Loader size={20} className="inline-block mr-2" colorClass="text-white" /> : 'Save Changes'}
         </button>
       </div>
     </form>

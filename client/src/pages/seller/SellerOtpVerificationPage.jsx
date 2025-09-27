@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import useSellerAuthStore from '../../store/sellerAuthStore';
-import { Loader2 } from 'lucide-react';
+// import { Loader2 } from 'lucide-react';
 import toast from 'react-hot-toast';
+import Loader from '../../components/shared/Loader';
 // import logo from '../../assets/logo.png';
 
 const SellerOtpVerificationPage = () => {
@@ -71,7 +72,7 @@ const SellerOtpVerificationPage = () => {
             className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
           >
             {isLoading ? (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              <Loader size={20} className="mr-2" colorClass="text-white" />
             ) : (
               'Verify OTP'
             )}
@@ -85,7 +86,7 @@ const SellerOtpVerificationPage = () => {
             disabled={isLoading}
             className="font-medium text-indigo-600 hover:text-indigo-500 focus:outline-none"
           >
-            Resend OTP
+            {isLoading ? <Loader size={16} className="mr-1 inline-block" /> : 'Resend OTP'}
           </button>
         </p>
         <p className="mt-2 text-center text-sm text-gray-600">
