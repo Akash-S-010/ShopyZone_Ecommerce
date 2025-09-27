@@ -9,7 +9,8 @@ const productSchema = new mongoose.Schema(
 
     // Categories stored as strings (no extra model needed)
     category: { type: String, required: true },   // e.g. "Fashion"
-    subCategory: { type: String },                // e.g. "Men > Shoes"
+    secondaryCategory: { type: String },          // e.g. "Men" (formerly subCategory)
+    tertiaryCategory: { type: String },           // e.g. "Shirt" (new field)
 
     price: { type: Number, required: true },
     discountPrice: { type: Number },
@@ -17,10 +18,10 @@ const productSchema = new mongoose.Schema(
 
     variants: [
       {
-        size: { type: String },     // fashion
+        size: { type: [String] },     // fashion
         color: { type: String },    // fashion
-        ram: { type: String },      // electronics
-        storage: { type: String },  // electronics
+        ram: { type: [String] },      // electronics
+        storage: { type: [String] },  // electronics
         quantity: { type: Number, default: 0 },
       },
     ],

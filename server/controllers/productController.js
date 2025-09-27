@@ -5,10 +5,20 @@ import cloudinary from '../config/cloudinary.js';
 // -------- CREATE PRODUCT --------
 export const createProduct = async (req, res, next) => {
   try {
-    const { name, description, brand, category, subCategory, price, discountPrice, stock, variants } = req.body;
+    const { name, description, brand, category, secondaryCategory, tertiaryCategory, price, discountPrice, stock } = req.body;
+    let { variants } = req.body;
 
     if (!name || !req.files || req.files.length === 0 || !category || !price) {
       return res.status(400).json({ message: "Name, images, category, and price are required" });
+    }
+
+    // Parse variants if it's a JSON string (from FormData)
+    if (variants && typeof variants === 'string') {
+      try {
+        variants = JSON.parse(variants);
+      } catch (e) {
+        return res.status(400).json({ message: "Invalid variants format" });
+      }
     }
 
     const imageUrls = [];
@@ -34,7 +44,8 @@ export const createProduct = async (req, res, next) => {
       brand,
       images: imageUrls,
       category,
-      subCategory,
+      secondaryCategory,
+      tertiaryCategory,
       price,
       discountPrice,
       stock,

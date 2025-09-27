@@ -9,12 +9,12 @@ import upload from '../middlewares/uploadMiddleware.js';
 const router = express.Router();
 
 // Seller-specific routes
-router.post('/', checkSeller, upload.array('images', 10), createProduct);
+router.post('/create', checkSeller, upload.array('images', 10), createProduct);
 router.put('/:id', checkSeller, upload.array('images', 10), updateProduct);
 router.delete('/:id', checkSellerOrAdmin, deleteProduct);
 
 // Public routes (or user-accessible routes)
-router.get('/', getAllProducts);
+router.get('/all', getAllProducts);
 router.get('/:id', getProductById);
 
 // Review routes

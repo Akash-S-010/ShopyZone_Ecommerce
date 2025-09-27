@@ -12,7 +12,7 @@ const CreateProductPage = () => {
   const handleSubmit = async (formData) => {
     setIsLoading(true);
     try {
-      const res = await axios.post('/api/product', formData, {
+      const res = await axios.post('/product/create', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
       toast.success(res.data.message);

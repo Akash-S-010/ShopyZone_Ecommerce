@@ -1,39 +1,81 @@
 import React, { useState, useEffect } from 'react';
 import Loader from '../shared/Loader';
 
+const categoriesData = {
+  "Fashion": {
+    "Men": ["Shirt", "Pants", "Shoes", "Jacket", "Hoodie", "Jeans", "Shorts", "Sweater", "Coat", "Blazer", "T-Shirt", "Vest", "Socks", "Underwear", "Swimwear", "Activewear", "Sleepwear", "Suit", "Tie", "Belt", "Wallet", "Hat", "Cap", "Scarf", "Gloves", "Sunglasses", "Watches", "Cufflinks", "Pocket Square", "Tie Clip", "Lapel Pin", "Backpack", "Messenger Bag", "Briefcase", "Duffel Bag", "Tote Bag", "Fanny Pack", "Crossbody Bag", "Clutch", "Wristlet", "Shoe Care", "Jewelry", "Keychains", "Umbrella", "Face Mask"],
+    "Women": ["Dress", "Skirt", "Heels", "Blouse", "Trousers", "Jeans", "Shorts", "Cardigan", "Sweater", "Coat", "Jacket", "Blazer", "Top", "Leggings", "Lingerie", "Swimsuit", "Activewear", "Pajamas", "Jumpsuit", "Romper", "Socks", "Hosiery", "Scarf", "Hat", "Gloves", "Sunglasses", "Watches", "Jewelry", "Handbag", "Tote Bag", "Clutch", "Crossbody Bag", "Wallet", "Belt", "Hair Accessories", "Umbrella", "Face Mask"],
+    "Kids": ["T-Shirt", "Shorts", "Pants", "Dress", "Skirt", "Jacket", "Sweater", "Shoes", "Socks", "Pajamas", "Swimwear", "Hats", "Gloves", "Scarf", "Underwear", "Activewear", "Sleepwear", "Jumpsuit", "Romper", "Coat", "Blazer", "Vest", "Overalls", "Leggings", "Hoodie", "Sweatshirt", "Jeans", "Sandals", "Boots", "Sneakers", "Slippers", "Raincoat", "Umbrella", "Face Mask"]
+  },
+  "Electronics": {
+    "Mobiles": ["Smartphones", "Feature Phones", "Accessories"],
+    "Laptops": ["Gaming Laptops", "Ultrabooks", "Convertibles", "Chromebooks", "Workstations", "Accessories"],
+    "Cameras": ["DSLR", "Mirrorless", "Point and Shoot", "Action Cameras", "Drones", "Accessories"],
+    "Audio": ["Headphones", "Earbuds", "Speakers", "Soundbars", "Microphones", "Accessories"],
+    "Wearable Tech": ["Smartwatches", "Fitness Trackers", "VR Headsets", "Smart Glasses", "Accessories"],
+    "Gaming": ["Consoles", "PC Games", "Console Games", "Accessories", "Controllers"],
+    "Home Appliances": ["Televisions", "Refrigerators", "Washing Machines", "Air Conditioners", "Microwaves", "Vacuum Cleaners", "Kitchen Appliances", "Smart Home Devices", "Accessories"],
+    "Computer Accessories": ["Monitors", "Keyboards", "Mice", "Printers", "External Storage", "Routers", "Webcams", "Software", "Networking Devices", "Cables & Adapters"]
+  },
+};
+
 const ProductForm = ({ initialData = {}, onSubmit, isLoading, buttonText }) => {
-  const [formData, setFormData] = useState({
-    name: '',
-    description: '',
-    brand: '',
-    category: '',
-    subCategory: '',
-    price: '',
-    discountPrice: '',
-    stock: '',
-    variants: [],
-    images: [], // This will hold File objects
+  const [formData, setFormData] = useState(() => {
+    const initialState = {
+      name: '',
+      description: '',
+      brand: '',
+      category: '',
+      secondaryCategory: '',
+      tertiaryCategory: '',
+      price: '',
+      discountPrice: '',
+      stock: '',
+      variants: [],
+      images: [], // This will hold File objects
+    };
+
+    if (Object.keys(initialData).length > 0) { // Check if initialData is not empty
+      return {
+        ...initialState,
+        ...initialData,
+        images: [], // Clear file inputs for editing, users re-upload if needed
+        secondaryCategory: initialData.secondaryCategory || '',
+        tertiaryCategory: initialData.tertiaryCategory || '',
+        variants: initialData.variants ? initialData.variants.map(variant => ({
+          ...variant,
+          size: Array.isArray(variant.size) ? variant.size.join(', ') : variant.size,
+          ram: Array.isArray(variant.ram) ? variant.ram.join(', ') : variant.ram,
+          storage: Array.isArray(variant.storage) ? variant.storage.join(', ') : variant.storage,
+        })) : [],
+      };
+    }
+    return initialState;
   });
+
   const [imagePreviews, setImagePreviews] = useState([]);
 
   useEffect(() => {
-    if (initialData) {
-      setFormData(prev => ({
-        ...prev,
-        ...initialData,
-        // Assuming initialData.images are URLs (strings)
-        images: [], // Clear file inputs for editing, users re-upload if needed
-      }));
-      // Set image previews for existing images
-      if (initialData.images && initialData.images.length > 0) {
-        setImagePreviews(initialData.images);
-      }
+    if (initialData.images && initialData.images.length > 0) {
+      setImagePreviews(initialData.images);
     }
-  }, [initialData]);
+  }, [initialData.images]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+
+    setFormData(prev => {
+      let newFormData = { ...prev, [name]: value };
+
+      // Reset dependent categories if parent changes
+      if (name === 'category' && prev.category !== value) {
+        newFormData.secondaryCategory = '';
+        newFormData.tertiaryCategory = '';
+      } else if (name === 'secondaryCategory' && prev.secondaryCategory !== value) {
+        newFormData.tertiaryCategory = '';
+      }
+      return newFormData;
+    });
   };
 
   const handleImageChange = (e) => {
@@ -57,7 +99,21 @@ const ProductForm = ({ initialData = {}, onSubmit, isLoading, buttonText }) => {
     const updatedVariants = formData.variants.map((variant, i) =>
       i === index ? { ...variant, [name]: value } : variant
     );
-    setFormData(prev => ({ ...prev, variants: updatedVariants }));
+    setFormData(prev => ({
+      ...prev, variants: updatedVariants.map(variant => {
+        const newVariant = { ...variant };
+        if (newVariant.size && typeof newVariant.size === 'string') {
+          newVariant.size = newVariant.size.split(',').map(s => s.trim()).filter(s => s.length > 0);
+        }
+        if (newVariant.ram && typeof newVariant.ram === 'string') {
+          newVariant.ram = newVariant.ram.split(',').map(s => s.trim()).filter(s => s.length > 0);
+        }
+        if (newVariant.storage && typeof newVariant.storage === 'string') {
+          newVariant.storage = newVariant.storage.split(',').map(s => s.trim()).filter(s => s.length > 0);
+        }
+        return newVariant;
+      })
+    }));
   };
 
   const addVariant = () => {
@@ -89,6 +145,13 @@ const ProductForm = ({ initialData = {}, onSubmit, isLoading, buttonText }) => {
     onSubmit(data);
   };
 
+  const secondaryOptions = formData.category ? Object.keys(categoriesData[formData.category]) : [];
+  const tertiaryOptions = (formData.category && formData.secondaryCategory) ? categoriesData[formData.category][formData.secondaryCategory] : [];
+
+  console.log('formData.category:', formData.category);
+  console.log('formData.secondaryCategory:', formData.secondaryCategory);
+  console.log('secondaryOptions:', secondaryOptions);
+
   return (
     <form onSubmit={handleSubmit} className="space-y-6 bg-white p-6 rounded-lg shadow-md">
       <div>
@@ -108,13 +171,56 @@ const ProductForm = ({ initialData = {}, onSubmit, isLoading, buttonText }) => {
 
       <div>
         <label htmlFor="category" className="block text-sm font-medium text-gray-700">Category</label>
-        <input type="text" id="category" name="category" value={formData.category} onChange={handleChange} required className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2" />
+        <select
+          id="category"
+          name="category"
+          value={formData.category}
+          onChange={handleChange}
+          required
+          className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
+        >
+          <option value="">Select a category</option>
+          {Object.keys(categoriesData).map(cat => (
+            <option key={cat} value={cat}>{cat}</option>
+          ))}
+        </select>
       </div>
 
-      <div>
-        <label htmlFor="subCategory" className="block text-sm font-medium text-gray-700">Sub-Category</label>
-        <input type="text" id="subCategory" name="subCategory" value={formData.subCategory} onChange={handleChange} className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2" />
-      </div>
+      {formData.category && (
+        <div>
+          <label htmlFor="secondaryCategory" className="block text-sm font-medium text-gray-700">Secondary Category</label>
+          <select
+            id="secondaryCategory"
+            name="secondaryCategory"
+            value={formData.secondaryCategory}
+            onChange={handleChange}
+            className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
+          >
+            <option value="">Select a secondary category</option>
+            {secondaryOptions.map(secCat => (
+              <option key={secCat} value={secCat}>{secCat}</option>
+            ))}
+          </select>
+        </div>
+      )}
+
+      {formData.secondaryCategory && (
+        <div>
+          <label htmlFor="tertiaryCategory" className="block text-sm font-medium text-gray-700">Tertiary Category</label>
+          <select
+            id="tertiaryCategory"
+            name="tertiaryCategory"
+            value={formData.tertiaryCategory}
+            onChange={handleChange}
+            className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
+          >
+            <option value="">Select a tertiary category</option>
+            {tertiaryOptions.map(terCat => (
+              <option key={terCat} value={terCat}>{terCat}</option>
+            ))}
+          </select>
+        </div>
+      )}
 
       <div>
         <label htmlFor="price" className="block text-sm font-medium text-gray-700">Price</label>

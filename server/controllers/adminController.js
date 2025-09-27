@@ -3,6 +3,7 @@ import User from "../models/User.js";
 import Seller from "../models/Seller.js";
 import { generateToken } from "../utils/token.js";
 import bcrypt from "bcryptjs";
+import Product from "../models/Product.js";
 
 
 export const adminLogin = async (req, res, next) => {
@@ -81,6 +82,15 @@ export const getAllSellers = async (req, res, next) => {
     }
 };
 
+// ---------------- GET TOTAL PRODUCTS COUNT ----------------
+export const getTotalProducts = async (req, res, next) => {
+    try {
+        const totalProducts = await Product.countDocuments();
+        res.status(200).json({ count: totalProducts });
+    } catch (error) {
+        next(error);
+    }
+};
 
 // ----------------  USER Block TOGGLE ----------------
 export const toggleUserBlock = async (req, res, next) => {
