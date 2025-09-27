@@ -29,6 +29,7 @@ import AdminProfilePage from './pages/admin/AdminProfilePage';
 import AdminPrivateRoute from './routes/AdminPrivateRoute';
 import AdminLayout from './layouts/admin/AdminLayout';
 import SellerDashboardPage from './pages/seller/SellerDashboardPage';
+import AdminDashboardPage from './pages/admin/AdminDashboardPage';
 
 const App = () => {
   const initializeUserAuth = useAuthStore((state) => state.initializeAuth);
@@ -84,7 +85,7 @@ const App = () => {
         {/* Admin Private Routes */}
         <Route element={<AdminPrivateRoute />}>
           <Route path="/admin" element={<AdminLayout />}>
-            <Route index element={<div>Welcome to Admin Dashboard!</div>} />
+            <Route index element={<AdminDashboardPage />} />
             <Route path="users" element={<AdminUsersPage />} />
             <Route path="sellers" element={<AdminSellersPage />} />
             <Route path="products" element={<AdminProductsPage />} />
