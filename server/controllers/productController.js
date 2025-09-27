@@ -1,13 +1,22 @@
 import Product from "../models/Product.js";
 import Seller from "../models/Seller.js";
+import cloudinary from '../config/cloudinary.js';
 
 // -------- CREATE PRODUCT --------
 export const createProduct = async (req, res, next) => {
   try {
-    const { name, description, brand, images, category, subCategory, price, discountPrice, stock, variants } = req.body;
+    const { name, description, brand, category, subCategory, price, discountPrice, stock, variants } = req.body;
 
-    if (!name || !images || !category || !price) {
+    if (!name || !req.files || req.files.length === 0 || !category || !price) {
       return res.status(400).json({ message: "Name, images, category, and price are required" });
+    }
+
+    const imageUrls = [];
+    for (const file of req.files) {
+      const result = await cloudinary.uploader.upload(file.path || `data:${file.mimetype};base64,${file.buffer.toString('base64')}`, {
+        folder: 'shopyzone',
+      });
+      imageUrls.push(result.secure_url);
     }
 
     const sellerId = req.seller?._id || req.admin?._id;
@@ -23,7 +32,7 @@ export const createProduct = async (req, res, next) => {
       name,
       description,
       brand,
-      images,
+      images: imageUrls,
       category,
       subCategory,
       price,
@@ -51,6 +60,17 @@ export const updateProduct = async (req, res, next) => {
     // Only the seller who owns it or admin can update
     if (req.seller && product.seller.toString() !== req.seller._id.toString()) {
       return res.status(403).json({ message: "Not authorized to update this product" });
+    }
+
+    if (req.files && req.files.length > 0) {
+      const newImageUrls = [];
+      for (const file of req.files) {
+        const result = await cloudinary.uploader.upload(file.path || `data:${file.mimetype};base64,${file.buffer.toString('base64')}`, {
+          folder: 'shopyzone',
+        });
+        newImageUrls.push(result.secure_url);
+      }
+      updates.images = [...product.images, ...newImageUrls]; // Append new images
     }
 
     Object.assign(product, updates);

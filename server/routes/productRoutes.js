@@ -4,12 +4,13 @@ import { addReview, getReviews, deleteReview } from '../controllers/reviewContro
 import { checkSeller } from '../middlewares/sellerMiddleware.js';
 import { checkAuth } from '../middlewares/authMiddleware.js';
 import { checkSellerOrAdmin } from '../middlewares/sellerOrAdminMiddleware.js';
+import upload from '../middlewares/uploadMiddleware.js';
 
 const router = express.Router();
 
 // Seller-specific routes
-router.post('/', checkSeller, createProduct);
-router.put('/:id', checkSeller, updateProduct);
+router.post('/', checkSeller, upload.array('images', 10), createProduct);
+router.put('/:id', checkSeller, upload.array('images', 10), updateProduct);
 router.delete('/:id', checkSellerOrAdmin, deleteProduct);
 
 // Public routes (or user-accessible routes)
