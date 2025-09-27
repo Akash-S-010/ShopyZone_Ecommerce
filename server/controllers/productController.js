@@ -123,14 +123,3 @@ export const getAllProducts = async (req, res, next) => {
     next(err);
   }
 };
-
-// -------- GET SELLER'S PRODUCTS --------
-export const getSellerProducts = async (req, res, next) => {
-  try {
-    const sellerId = req.seller._id;
-    const products = await Product.find({ seller: sellerId });
-    res.json(products);
-  } catch (err) {
-    next(err);
-  }
-};

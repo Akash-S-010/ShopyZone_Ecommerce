@@ -3,6 +3,7 @@ import bcrypt from "bcryptjs";
 import { generateToken } from "../utils/token.js";
 import { generateOTP } from "../utils/otp.js";
 import { sendOTPEmail } from "../utils/email.js";
+import Product from "../models/Product.js";
 
 // Seller Registration
 export const registerSeller = async (req, res, next) => {
@@ -223,6 +224,49 @@ export const getSeller = async (req, res, next) => {
     const sellerData = await Seller.findById(req.seller._id).select("-password");
     if (!sellerData) return res.status(404).json({ message: "User not found" });
     res.json(sellerData);
+  } catch (err) {
+    next(err);
+  }
+};
+
+// -------- GET SELLER'S PRODUCTS --------
+export const getSellerProducts = async (req, res, next) => {
+  try {
+    const sellerId = req.seller._id;
+    const products = await Product.find({ seller: sellerId });
+    res.json(products);
+  } catch (err) {
+    next(err);
+  }
+};
+
+// ---------------- UPDATE SELLER PROFILE ----------------
+export const updateSellerProfile = async (req, res, next) => {
+  try {
+    const sellerId = req.seller._id;
+    const updates = req.body;
+
+    const seller = await Seller.findById(sellerId);
+    if (!seller) {
+      return res.status(404).json({ message: "Seller not found" });
+    }
+
+    // Prevent updating sensitive fields directly
+    if (updates.email) delete updates.email;
+    if (updates.password) delete updates.password;
+    if (updates.role) delete updates.role;
+    if (updates.isVerified) delete updates.isVerified;
+    if (updates.isBlocked) delete updates.isBlocked;
+    if (updates.otp) delete updates.otp;
+    if (updates.otpExpiresAt) delete updates.otpExpiresAt;
+
+    Object.assign(seller, updates);
+    await seller.save();
+
+    // Fetch the updated seller data (excluding password) to send in the response
+    const updatedSeller = await Seller.findById(sellerId).select("-password");
+
+    res.status(200).json({ message: "Profile updated successfully", seller: updatedSeller });
   } catch (err) {
     next(err);
   }

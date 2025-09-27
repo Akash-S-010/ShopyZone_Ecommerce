@@ -1,11 +1,13 @@
 import express from "express";
-import { adminLogin, getAllUsers, getAllSellers, toggleUserBlock, updateSellerStatus } from "../controllers/adminController.js";
+import { adminLogin, getAllUsers, getAllSellers, toggleUserBlock, updateSellerStatus, getAdmin } from "../controllers/adminController.js";
 import {checkAdmin} from "../middlewares/adminMiddleware.js";
 
 const router = express.Router();
 
 // Admin login
 router.post("/login", adminLogin);
+// Get admin data
+router.get("/get-admin", checkAdmin, getAdmin);
 // Get all users
 router.get("/users",checkAdmin, getAllUsers);
 // user Block toggle

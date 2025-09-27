@@ -49,7 +49,16 @@ export const adminLogin = async (req, res, next) => {
     }
 };
 
-
+// ---------------- GET ADMIN DATA ----------------
+export const getAdmin = async (req, res, next) => {
+    try {
+        const adminData = await Admin.findById(req.admin._id).select("-password");
+        if (!adminData) return res.status(404).json({ message: "Admin not found" });
+        res.json(adminData);
+    } catch (err) {
+        next(err);
+    }
+};
 
 // ---------------- GET ALL USERS ----------------
 export const getAllUsers = async (req, res, next) => {

@@ -35,38 +35,42 @@ export const adminRegister = async (req, res, next) => {
   }
 };
 
-export const adminLogin = async (req, res, next) => {
-  try {
-    const { email, password } = req.body;
+// export const adminLogin = async (req, res, next) => {
+//   try {
+//     const { email, password } = req.body;
 
-    // Check if admin exists
-    const admin = await Admin.findOne({ email });
+//     if (!email || !password) {
+//       return res.status(400).json({ message: 'All fields are required' });
+//     }
 
-    // Check password
-    const isMatch = await bcrypt.compare(password, admin.password);
-    if (!isMatch) {
-      return res.status(400).json({ message: 'Invalid credentials' });
-    }
+//     // Check if admin exists
+//     const admin = await Admin.findOne({ email });
 
-    // Generate JWT
-    const token = generateToken(admin._id, admin.role);
+//     // Check password
+//     const isMatch = await bcrypt.compare(password, admin.password);
+//     if (!isMatch) {
+//       return res.status(400).json({ message: 'Invalid credentials' });
+//     }
 
-    // Set cookie
-    res.cookie('token', token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
-    });
+//     // Generate JWT
+//     const token = generateToken(admin._id, admin.role);
 
-    res.status(200).json({
-      message: 'Admin logged in successfully',
-      admin: {
-        id: admin._id,
-        name: admin.name,
-        email: admin.email,
-      },
-    });
-  } catch (error) {
-    next(error);
-  }
-};
+//     // Set cookie
+//     res.cookie('token', token, {
+//       httpOnly: true,
+//       secure: process.env.NODE_ENV === 'production',
+//       sameSite: 'strict',
+//     });
+
+//     res.status(200).json({
+//       message: 'Admin logged in successfully',
+//       admin: {
+//         id: admin._id,
+//         name: admin.name,
+//         email: admin.email,
+//       },
+//     });
+//   } catch (error) {
+//     next(error);
+//   }
+// };
