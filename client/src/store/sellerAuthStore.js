@@ -95,6 +95,21 @@ const useSellerAuthStore = create((set) => ({
   },
 
   clearError: () => set({ error: null }),
+
+  updateSellerProfile: async (profileData) => {
+    set({ isLoading: true, error: null });
+    try {
+      const res = await axios.put('/seller/profile', profileData);
+      set({ seller: res.data.seller, isLoading: false });
+      toast.success(res.data.message);
+      return { success: true, message: res.data.message };
+    } catch (error) {
+      const errorMessage = error.response?.data?.message || 'Failed to update profile';
+      toast.error(errorMessage);
+      set({ isLoading: false, error: errorMessage });
+      return { success: false, message: errorMessage };
+    }
+  },
 }));
 
 export default useSellerAuthStore;

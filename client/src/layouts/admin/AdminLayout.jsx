@@ -1,6 +1,6 @@
 import { Outlet, Link, useNavigate } from 'react-router-dom';
 import useAdminAuthStore from '../../store/adminAuthStore';
-import { LogOut, Home, Users, Store, Package } from 'lucide-react';
+import { LogOut, Home, Users, Store, Package, User as UserIcon } from 'lucide-react';
 import toast from 'react-hot-toast';
 // import logo from '../../assets/logo.png';
 
@@ -41,6 +41,10 @@ const AdminLayout = () => {
           <Link to="/admin/products" className="flex items-center space-x-1 text-gray-700 hover:text-indigo-600">
             <Package className="h-5 w-5" />
             <span>Products</span>
+          </Link>
+          <Link to="/admin/profile" className="flex items-center space-x-1 text-gray-700 hover:text-indigo-600">
+            <UserIcon className="h-5 w-5" />
+            <span>Profile</span>
           </Link>
           <button
             onClick={handleLogout}

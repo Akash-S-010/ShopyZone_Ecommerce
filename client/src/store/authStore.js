@@ -84,6 +84,38 @@ const useAuthStore = create((set) => ({
     }
   },
 
+  // Forgot password action
+  forgotPassword: async (email) => {
+    set({ isLoading: true, error: null });
+    try {
+      const res = await axios.post('/user/forgot-password', { email });
+      toast.success(res.data.message);
+      set({ isLoading: false });
+      return { success: true, message: res.data.message };
+    } catch (error) {
+      const errorMessage = error.response?.data?.message || 'Password reset initiation failed';
+      toast.error(errorMessage);
+      set({ isLoading: false, error: errorMessage });
+      return { success: false, message: errorMessage };
+    }
+  },
+
+  // Reset password action (OTP based)
+  resetPassword: async (email, otp, newPassword) => {
+    set({ isLoading: true, error: null });
+    try {
+      const res = await axios.post('/user/reset-password', { email, otp, newPassword });
+      toast.success(res.data.message);
+      set({ isLoading: false });
+      return { success: true, message: res.data.message };
+    } catch (error) {
+      const errorMessage = error.response?.data?.message || 'Password reset failed';
+      toast.error(errorMessage);
+      set({ isLoading: false, error: errorMessage });
+      return { success: false, message: errorMessage };
+    }
+  },
+
   // User logout action
   logoutUser: async () => {
     set({ isLoading: true, error: null });
