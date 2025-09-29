@@ -30,6 +30,15 @@ import AdminPrivateRoute from './routes/AdminPrivateRoute';
 import AdminLayout from './layouts/admin/AdminLayout';
 import SellerDashboardPage from './pages/seller/SellerDashboardPage';
 import AdminDashboardPage from './pages/admin/AdminDashboardPage';
+import HomePage from './pages/user/HomePage';
+import ProductDetailPage from './pages/user/ProductDetailPage';
+import CartPage from './pages/user/CartPage';
+import WishlistPage from './pages/user/WishlistPage';
+import AddressManagementPage from './pages/user/AddressManagementPage';
+import CheckoutPage from './pages/user/CheckoutPage';
+import OrderHistoryPage from './pages/user/OrderHistoryPage';
+import AddressPage from './pages/user/AddressPage';
+import AllProductsPage from './pages/user/AllProductsPage';
 
 const App = () => {
   const initializeUserAuth = useAuthStore((state) => state.initializeAuth);
@@ -65,9 +74,15 @@ const App = () => {
         {/* User Private Routes */}
         <Route element={<PrivateRoute />}>
           <Route path="/" element={<UserLayout />}>
-            <Route index element={<div>Welcome to ShopyZone!</div>} />
+            <Route index element={<HomePage />} />
             <Route path="profile" element={<ProfilePage />} />
-            {/* Add more user-specific routes here */}
+            <Route path="product/:id" element={<ProductDetailPage />} />
+            <Route path="cart" element={<CartPage />} />
+            <Route path="wishlist" element={<WishlistPage />} />
+            <Route path="addresses" element={<AddressManagementPage />} />
+            <Route path="checkout" element={<CheckoutPage />} />
+            <Route path="orders" element={<OrderHistoryPage />} />
+            <Route path="products" element={<AllProductsPage />} />
           </Route>
         </Route>
 

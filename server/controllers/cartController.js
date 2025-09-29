@@ -44,7 +44,7 @@ export const addToCart = async (req, res, next) => {
 export const getCart = async (req, res, next) => {
     try {
         const user = await User.findById(req.user._id)
-            .populate("cart.product", "name price images stock");
+            .populate("cart.product", "name price discountPrice images stock");
 
         return res.status(200).json(user.cart);
     } catch (error) {

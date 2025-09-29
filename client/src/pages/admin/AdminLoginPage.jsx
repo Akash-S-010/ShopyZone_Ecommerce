@@ -35,9 +35,9 @@ const AdminLoginPage = () => {
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4">
       <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
         <div className="flex justify-center mb-6">
-          <img src="" alt="ShopyZone Admin Logo" className="h-12" />
+          <img src="https://via.placeholder.com/150x50?text=ShopyZone+Admin" alt="ShopyZone Admin Logo" className="h-12" />
         </div>
-        <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">Admin Login</h2>
+        <h2 className="text-2xl font-bold text-center text-gray-900 mb-6">Admin Login</h2>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label htmlFor="login" className="block text-sm font-medium text-gray-700">Email or Phone Number</label>

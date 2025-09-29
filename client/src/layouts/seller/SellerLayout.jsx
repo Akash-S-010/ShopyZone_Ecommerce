@@ -20,8 +20,8 @@ const SellerLayout = () => {
       {/* Navbar */}
       <nav className="bg-white shadow-md p-4 flex items-center justify-between">
         <div className="flex items-center">
-          <Link to="/seller" className="flex items-center space-x-2">
-            <img src="" alt="ShopyZone Seller Logo" className="h-8" />
+          <Link to="/seller/dashboard" className="flex items-center space-x-2">
+            <img src="https://via.placeholder.com/150x50?text=ShopyZone+Seller" alt="ShopyZone Seller Logo" className="h-8" />
             <span className="text-xl font-bold text-gray-800">ShopyZone Seller</span>
           </Link>
         </div>

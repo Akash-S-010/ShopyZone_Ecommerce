@@ -288,7 +288,9 @@ export const logoutUser = async (req, res) => {
 export const getUser = async (req, res, next) => {
   const user = req.user;
   try {
-    const userData = await User.findById(req.user.id).select("-password");
+    const userData = await User.findById(req.user.id)
+      .select("-password")
+      .populate('wishlist');
     if (!userData) return res.status(404).json({ message: "User not found" });
     res.json(userData);
   } catch (err) {

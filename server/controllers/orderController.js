@@ -12,7 +12,7 @@ const razorpay = new Razorpay({
 });
 
 // Place a new order
-export const placeOrder = async (req, res) => {
+const placeOrder = async (req, res) => {
   try {
     const user = req.user;
     const { paymentType, address } = req.body;
@@ -21,7 +21,7 @@ export const placeOrder = async (req, res) => {
       return res.status(400).json({ message: "Valid payment type is required" });
     }
 
-    if (!address || !address.street || !address.city || !address.state || !address.pincode) {
+    if (!address || !address.Address || !address.street || !address.city || !address.state || !address.pincode) {
       return res.status(400).json({ message: "Complete shipping address is required" });
     }
 
@@ -41,7 +41,7 @@ export const placeOrder = async (req, res) => {
         return res.status(400).json({ message: `Insufficient stock for ${product.name}` });
       }
 
-      totalPrice += product.price * cartItem.quantity;
+      totalPrice += (product.discountPrice || product.price) * cartItem.quantity;
       items.push({
         product: product._id,
         quantity: cartItem.quantity,
@@ -60,17 +60,6 @@ export const placeOrder = async (req, res) => {
       paymentStatus: paymentType === "COD" ? "pending" : "pending",
     });
 
-    let razorpayOrder = null;
-    if (paymentType === "Razorpay") {
-      razorpayOrder = await razorpay.orders.create({
-        amount: totalPrice * 100, // amount in the smallest currency unit
-        currency: "INR", // Assuming INR, you might want to make this dynamic
-        receipt: order._id.toString(),
-      });
-      order.razorpayOrderId = razorpayOrder.id;
-      await order.save();
-    }
-
     // Reduce stock
     for (const cartItem of user.cart) {
       await Product.findByIdAndUpdate(cartItem.product, { $inc: { stock: -cartItem.quantity } });
@@ -80,19 +69,7 @@ export const placeOrder = async (req, res) => {
     user.cart = [];
     await user.save();
 
-    if (paymentType === "Razorpay" && razorpayOrder) {
-      return res.status(201).json({
-        message: "Order placed successfully",
-        order,
-        razorpayOrder: {
-          id: razorpayOrder.id,
-          currency: razorpayOrder.currency,
-          amount: razorpayOrder.amount,
-        },
-      });
-    } else {
-      return res.status(201).json({ message: "Order placed successfully", order });
-    }
+    return res.status(201).json({ message: "Order placed successfully", order });
   } catch (err) {
     console.error("Error placing order:", err);
     return res.status(500).json({ message: "Internal server error" });
@@ -100,7 +77,7 @@ export const placeOrder = async (req, res) => {
 };
 
 // Get orders of logged-in user
-export const getUserOrders = async (req, res) => {
+const getUserOrders = async (req, res) => {
   try {
     const orders = await Order.find({ user: req.user._id })
       .populate("items.product", "name price images")
@@ -114,7 +91,7 @@ export const getUserOrders = async (req, res) => {
 };
 
 // Get all orders (admin)
-export const getAllOrders = async (req, res) => {
+const getAllOrders = async (req, res) => {
   try {
     const orders = await Order.find()
       .populate("user", "name email phone")
@@ -128,7 +105,7 @@ export const getAllOrders = async (req, res) => {
   }
 };
 
-export const updateOrderStatus = async (req, res) => {
+const updateOrderStatus = async (req, res) => {
   try {
     const { orderId, status } = req.body;
     const validStatuses = ["Pending", "Processing", "Shipped", "Delivered", "Cancelled"];
@@ -151,7 +128,7 @@ export const updateOrderStatus = async (req, res) => {
 };
 
 // Update order item status (seller)
-export const updateOrderItemStatus = async (req, res) => {
+const updateOrderItemStatus = async (req, res) => {
   try {
     const { orderId, itemId, status } = req.body;
     const sellerId = req.seller._id;
@@ -192,72 +169,94 @@ export const updateOrderItemStatus = async (req, res) => {
 };
 
 // Create Razorpay Order
-export const createRazorpayOrder = async (req, res, next) => {
+const createRazorpayOrder = async (req, res, next) => {
   try {
-    const { amount, currency, receipt } = req.body;
+    const user = req.user;
+    const { total, address, items } = req.body;
+
+    console.log("Received data for Razorpay order:", { user: user._id, total, address, items });
+
+    if (!user.cart || user.cart.length === 0) {
+      return res.status(400).json({ message: "Cart is empty" });
+    }
+
+    // Create order in database with pending status
+    const order = await Order.create({
+      user: user._id,
+      items,
+      totalPrice: total,
+      address,
+      paymentType: "Razorpay",
+      paymentStatus: "pending",
+    });
+
+    console.log("Order created in DB:", order);
 
     const options = {
-      amount: amount * 100, // amount in the smallest currency unit (e.g., paise for INR)
-      currency,
-      receipt,
+      amount: total * 100, // amount in the smallest currency unit (e.g., paise for INR)
+      currency: "INR", // Assuming INR, you might want to make this dynamic
+      receipt: order._id.toString(),
     };
 
+    console.log("Razorpay options:", options);
+
     const razorpayOrder = await razorpay.orders.create(options);
+
+    console.log("Razorpay order created:", razorpayOrder);
+
+    // Update the order with Razorpay order ID
+    order.razorpayOrderId = razorpayOrder.id;
+    await order.save();
 
     res.status(200).json({
       orderId: razorpayOrder.id,
       currency: razorpayOrder.currency,
       amount: razorpayOrder.amount,
+      dbOrderId: order._id, // Return our internal order ID as well
     });
   } catch (error) {
+    console.error("Error creating Razorpay order:", error);
     next(error);
   }
 };
 
 // Handle Razorpay Webhook
-export const handleRazorpayWebhook = async (req, res, next) => {
+const handleRazorpayWebhook = async (req, res, next) => {
   try {
-    const shasum = crypto.createHmac("sha256", process.env.RAZORPAY_WEBHOOK_SECRET);
-    shasum.update(JSON.stringify(req.body));
+    const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
+    const dbOrderId = req.params.dbOrderId;
+
+    const shasum = crypto.createHmac("sha256", process.env.RAZORPAY_KEY_SECRET);
+    shasum.update(`${razorpay_order_id}|${razorpay_payment_id}`);
     const digest = shasum.digest("hex");
 
-    if (digest === req.headers["x-razorpay-signature"]) {
-      const event = req.body.event;
-      const payload = req.body.payload;
-
-      if (event === "payment.captured") {
-        const paymentId = payload.payment.entity.id;
-        const orderId = payload.payment.entity.order_id;
-
-        // Find the order in your database using the orderId (Razorpay order ID)
-        // You'll need to store the Razorpay order ID in your Order model when creating it
-        const order = await Order.findOne({ "items.razorpayOrderId": orderId });
-
-        if (order) {
-          // Update payment status for all items in the order
-          order.items.forEach((item) => {
-            item.paymentStatus = "paid";
-          });
-          // Update overall order payment status
-          order.paymentStatus = "paid";
-          await order.save();
-          console.log(`Payment captured for order: ${order._id}`);
-        }
-      } else if (event === "payment.failed") {
-        const orderId = payload.payment.entity.order_id;
-        const order = await Order.findOne({ "items.razorpayOrderId": orderId });
-
-        if (order) {
-          order.paymentStatus = "failed";
-          await order.save();
-          console.log(`Payment failed for order: ${order._id}`);
-        }
+    if (digest === razorpay_signature) {
+      const order = await Order.findById(dbOrderId);
+      if (!order) {
+        return res.status(404).json({ message: "Order not found" });
       }
-      res.status(200).json({ status: "ok" });
+
+      order.paymentStatus = "paid";
+      order.razorpayPaymentId = razorpay_payment_id;
+      order.razorpaySignature = razorpay_signature;
+      await order.save();
+
+      return res.status(200).json({ message: "Payment verified successfully", order });
     } else {
-      res.status(403).json({ message: "Invalid signature" });
+      return res.status(400).json({ message: "Invalid signature" });
     }
-  } catch (error) {
-    next(error);
+  } catch (err) {
+    console.error("Error verifying Razorpay payment:", err);
+    return res.status(500).json({ message: "Internal server error" });
   }
+};
+
+export {
+  placeOrder,
+  getUserOrders,
+  getAllOrders,
+  updateOrderStatus,
+  updateOrderItemStatus,
+  createRazorpayOrder,
+  handleRazorpayWebhook,
 };

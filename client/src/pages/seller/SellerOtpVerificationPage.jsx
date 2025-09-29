@@ -32,9 +32,9 @@ const SellerOtpVerificationPage = () => {
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4">
       <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
         <div className="flex justify-center mb-6">
-          <img src="" alt="ShopyZone Seller Logo" className="h-12" />
+          <img src="https://via.placeholder.com/150x50?text=ShopyZone+Seller" alt="ShopyZone Seller Logo" className="h-12" />
         </div>
-        <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">Verify Your Seller Account</h2>
+        <h2 className="text-2xl font-bold text-center text-gray-900 mb-6">Seller OTP Verification</h2>
         <p className="text-center text-gray-600 mb-4">A 6-digit OTP has been sent to your email. Please enter it below.</p>
         
         <form onSubmit={handleVerifyOtp} className="space-y-4">

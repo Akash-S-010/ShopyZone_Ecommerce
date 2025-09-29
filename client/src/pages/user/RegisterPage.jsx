@@ -36,9 +36,9 @@ const RegisterPage = () => {
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4">
       <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
         <div className="flex justify-center mb-6">
-          <img src="" alt="ShopyZone Logo" className="h-12" />
+          <img src="https://via.placeholder.com/150x50?text=ShopyZone" alt="ShopyZone Logo" className="h-12" />
         </div>
-        <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">Create your ShopyZone Account</h2>
+        <h2 className="text-2xl font-bold text-center text-gray-900 mb-6">Create your account</h2>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label htmlFor="name" className="block text-sm font-medium text-gray-700">Name</label>

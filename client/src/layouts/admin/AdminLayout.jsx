@@ -20,8 +20,8 @@ const AdminLayout = () => {
       {/* Navbar */}
       <nav className="bg-white shadow-md p-4 flex items-center justify-between">
         <div className="flex items-center">
-          <Link to="/admin" className="flex items-center space-x-2">
-            <img src="" alt="ShopyZone Admin Logo" className="h-8" />
+          <Link to="/admin/dashboard" className="flex items-center space-x-2">
+            <img src="https://via.placeholder.com/150x50?text=ShopyZone+Admin" alt="ShopyZone Admin Logo" className="h-8" />
             <span className="text-xl font-bold text-gray-800">ShopyZone Admin</span>
           </Link>
         </div>

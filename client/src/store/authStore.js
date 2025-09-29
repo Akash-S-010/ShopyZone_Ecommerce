@@ -5,9 +5,11 @@ import { toast } from 'react-hot-toast';
 const useAuthStore = create((set) => ({
   user: null,
   isAuthenticated: false,
-  isLoading: true,
+  isLoading: false,
   error: null,
   hasCheckedAuth: false,
+  hasLoadedEmptyWishlist: false, // New state to track if an empty wishlist has been loaded
+  // hasLoadedEmptyCart: false, // New state to track if an empty cart has been loaded
 
   // Initialize authentication state from local storage or by checking the backend
   initializeAuth: async () => {
@@ -134,6 +136,205 @@ const useAuthStore = create((set) => ({
 
   // Clear authentication error
   clearError: () => set({ error: null }),
+
+  // Add product to wishlist
+  addToWishlist: async (productId) => {
+    set({ isLoading: true, error: null });
+    try {
+      const res = await axios.post('/user/wishlist/add', { productId });
+      set((state) => ({ 
+        user: { 
+          ...state.user, 
+          wishlist: res.data.wishlist 
+        }, 
+        isLoading: false 
+      }));
+      toast.success('Product added to wishlist');
+      return { success: true };
+    } catch (error) {
+      const errorMessage = error.response?.data?.message || 'Failed to add product to wishlist';
+      toast.error(errorMessage);
+      set({ isLoading: false, error: errorMessage });
+      return { success: false, message: errorMessage };
+    }
+  },
+
+  // Remove product from wishlist
+  removeFromWishlist: async (productId) => {
+    set({ isLoading: true, error: null });
+    try {
+      // Optimistically update the UI first
+      set((state) => ({
+        user: {
+          ...state.user,
+          wishlist: state.user.wishlist.filter(id => id !== productId)
+        },
+        isLoading: true
+      }));
+      
+      // Then make the API call
+      const res = await axios.delete(`/user/wishlist/remove/${productId}`);
+      
+      // Update with server response
+      set((state) => ({ 
+        user: { 
+          ...state.user, 
+          wishlist: res.data.wishlist 
+        }, 
+        isLoading: false 
+      }));
+      toast.success('Product removed from wishlist');
+      return { success: true };
+    } catch (error) {
+      const errorMessage = error.response?.data?.message || 'Failed to remove product from wishlist';
+      toast.error(errorMessage);
+      set({ isLoading: false, error: errorMessage });
+      return { success: false, message: errorMessage };
+    }
+  },
+
+  // Get wishlist
+  getWishlist: async () => {
+    const state = useAuthStore.getState();
+    // If wishlist is already loaded and not empty, or if an empty wishlist has been loaded, return cached data
+    if ((state.user && state.user.wishlist && state.user.wishlist.length > 0) || (state.hasLoadedEmptyWishlist && !state.isLoading)) {
+      return { success: true, wishlist: state.user?.wishlist || [] };
+    }
+
+    set({ isLoading: true, error: null });
+    try {
+      const res = await axios.get('/user/wishlist');
+      const wishlist = res.data.wishlist;
+      set((state) => ({
+        user: { ...state.user, wishlist: wishlist },
+        isLoading: false,
+        hasLoadedEmptyWishlist: wishlist.length === 0, // Set flag if wishlist is empty
+      }));
+      return { success: true, wishlist: wishlist };
+    } catch (error) {
+      const errorMessage = error.response?.data?.message || 'Failed to load wishlist';
+      toast.error(errorMessage);
+      set({ isLoading: false, error: errorMessage, hasLoadedEmptyWishlist: true }); // Also set flag on error
+      return { success: false, message: errorMessage };
+    }
+  },
+
+  // // Add product to cart
+  // addToCart: async (productId, quantity = 1) => {
+  //   set({ isLoading: true, error: null });
+  //   try {
+  //     const res = await axios.post('/user/cart/add', { productId, quantity });
+  //     set((state) => ({
+  //       user: {
+  //         ...state.user,
+  //         cart: res.data.cart,
+  //       },
+  //       isLoading: false,
+  //     }));
+  //     toast.success('Product added to cart');
+  //     return { success: true, message: res.data.message };
+  //   } catch (error) {
+  //     const errorMessage = error.response?.data?.message || 'Failed to add product to cart';
+  //     toast.error(errorMessage);
+  //     set({ isLoading: false, error: errorMessage });
+  //     return { success: false, message: errorMessage };
+  //   }
+  // },
+
+  // // Get user cart
+  // getCart: async () => {
+  //   const state = useAuthStore.getState();
+  //   // If cart is already loaded and not empty, or if an empty cart has been loaded, return cached data
+  //   if ((state.user && state.user.cart && state.user.cart.length > 0) || (state.hasLoadedEmptyCart && !state.isLoading)) {
+  //     return { success: true, cart: state.user?.cart || [] };
+  //   }
+
+  //   set({ isLoading: true, error: null });
+  //   try {
+  //     const res = await axios.get('/user/cart');
+  //     const cart = res.data;
+  //     set((state) => ({
+  //       user: {
+  //         ...state.user,
+  //         cart: cart,
+  //       },
+  //       isLoading: false,
+  //       hasLoadedEmptyCart: cart.length === 0, // Set flag if cart is empty
+  //     }));
+  //     return { success: true, cart: cart };
+  //   } catch (error) {
+  //     const errorMessage = error.response?.data?.message || 'Failed to load cart';
+  //     toast.error(errorMessage);
+  //     set({ isLoading: false, error: errorMessage, hasLoadedEmptyCart: true }); // Also set flag on error
+  //     return { success: false, message: errorMessage };
+  //   }
+  // },
+
+  // // Update cart item quantity
+  // updateCartItemQuantity: async (productId, quantity) => {
+  //   set({ isLoading: true, error: null });
+  //   try {
+  //     const res = await axios.put('/user/cart/update', { productId, quantity });
+  //     set((state) => ({
+  //       user: {
+  //         ...state.user,
+  //         cart: res.data.cart,
+  //       },
+  //       isLoading: false,
+  //     }));
+  //     toast.success('Cart item quantity updated');
+  //     return { success: true, message: res.data.message };
+  //   } catch (error) {
+  //     const errorMessage = error.response?.data?.message || 'Failed to update cart item quantity';
+  //     toast.error(errorMessage);
+  //     set({ isLoading: false, error: errorMessage });
+  //     return { success: false, message: errorMessage };
+  //   }
+  // },
+
+  // // Remove product from cart
+  // removeFromCart: async (productId) => {
+  //   set({ isLoading: true, error: null });
+  //   try {
+  //     const res = await axios.delete(`/user/cart/remove/${productId}`);
+  //     set((state) => ({
+  //       user: {
+  //         ...state.user,
+  //         cart: res.data.cart,
+  //       },
+  //       isLoading: false,
+  //     }));
+  //     toast.success('Product removed from cart');
+  //     return { success: true, message: res.data.message };
+  //   } catch (error) {
+  //     const errorMessage = error.response?.data?.message || 'Failed to remove product from cart';
+  //     toast.error(errorMessage);
+  //     set({ isLoading: false, error: errorMessage });
+  //     return { success: false, message: errorMessage };
+  //   }
+  // },
+
+  // // Clear cart
+  // clearCart: async () => {
+  //   set({ isLoading: true, error: null });
+  //   try {
+  //     await axios.delete('/user/cart/clear');
+  //     set((state) => ({
+  //       user: {
+  //         ...state.user,
+  //         cart: [],
+  //       },
+  //       isLoading: false,
+  //     }));
+  //     toast.success('Cart cleared');
+  //     return { success: true, message: 'Cart cleared' };
+  //   } catch (error) {
+  //     const errorMessage = error.response?.data?.message || 'Failed to clear cart';
+  //     toast.error(errorMessage);
+  //     set({ isLoading: false, error: errorMessage });
+  //     return { success: false, message: errorMessage };
+  //   }
+  // },
 }));
 
 export default useAuthStore;

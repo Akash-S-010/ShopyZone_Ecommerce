@@ -128,7 +128,7 @@ export const getProductById = async (req, res, next) => {
 // -------- GET ALL PRODUCTS (PUBLIC) --------
 export const getAllProducts = async (req, res, next) => {
   try {
-    const products = await Product.find({ status: "active" }).populate("seller", "name");
+    const products = await Product.find({}).populate("seller", "name");
     res.json(products);
   } catch (err) {
     next(err);
