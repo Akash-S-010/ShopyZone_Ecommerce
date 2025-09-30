@@ -105,6 +105,29 @@ const getAllOrders = async (req, res) => {
   }
 };
 
+const getSellerOrders = async (req, res) => {
+  try {
+    const sellerId = req.seller._id;
+
+    // Find all products belonging to the seller
+    const sellerProducts = await Product.find({ seller: sellerId }).select("_id");
+    const sellerProductIds = sellerProducts.map((product) => product._id);
+
+    // Find orders that contain any of the seller's products
+    const orders = await Order.find({
+      "items.product": { $in: sellerProductIds },
+    })
+      .populate("user", "name email phone")
+      .populate("items.product", "name price images")
+      .sort({ createdAt: -1 });
+
+    return res.status(200).json(orders);
+  } catch (err) {
+    console.error("Error fetching seller orders:", err);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
+
 const updateOrderStatus = async (req, res) => {
   try {
     const { orderId, status } = req.body;
@@ -128,14 +151,14 @@ const updateOrderStatus = async (req, res) => {
 };
 
 // Update order item status (seller)
-const updateOrderItemStatus = async (req, res) => {
+const updateOrderStatusBySeller = async (req, res) => {
   try {
-    const { orderId, itemId, status } = req.body;
+    const { orderId, status } = req.body;
     const sellerId = req.seller._id;
-    const validStatuses = ["Pending", "Processing", "Shipped", "Delivered", "Cancelled"];
+    const validStatuses = ["Pending", "Shipped", "Delivered", "Cancelled"];
 
     if (!validStatuses.includes(status)) {
-      return res.status(400).json({ message: "Invalid item status" });
+      return res.status(400).json({ message: "Invalid order status" });
     }
 
     const order = await Order.findById(orderId).populate({
@@ -144,21 +167,22 @@ const updateOrderItemStatus = async (req, res) => {
     });
     if (!order) return res.status(404).json({ message: "Order not found" });
 
-    const item = order.items.id(itemId);
-    if (!item) return res.status(404).json({ message: "Order item not found" });
+    // Check if any product in the order belongs to the seller
+    const sellerOwnsProductInOrder = order.items.some(
+      (item) => item.product.seller.toString() === sellerId.toString()
+    );
 
-    // Check if the seller owns the product
-    if (item.product.seller.toString() !== sellerId.toString()) {
-      return res.status(403).json({ message: "You are not authorized to update this item" });
+    if (!sellerOwnsProductInOrder) {
+      return res.status(403).json({ message: "You are not authorized to update this order" });
     }
 
-    item.itemStatus = status;
+    order.orderStatus = status;
 
     await order.save();
 
-    return res.status(200).json({ message: "Order item status updated", order });
+    return res.status(200).json({ message: "Order status updated", order });
   } catch (err) {
-    console.error("Error updating order item status:", err);
+    console.error("Error updating order status by seller:", err);
     return res.status(500).json({ message: "Internal server error" });
   }
 };
@@ -286,13 +310,60 @@ const verifyRazorpayPayment = async (req, res) => {
   }
 };
 
+
+
+const getSellerRevenue = async (req, res) => {
+  try {
+    const sellerId = req.seller._id;
+    console.log("Seller ID:", sellerId);
+
+    // Find all products belonging to the seller
+    const sellerProducts = await Product.find({ seller: sellerId }).select("_id");
+    const sellerProductIds = sellerProducts.map((product) => product._id.toString());
+    console.log("Seller Product IDs:", sellerProductIds);
+
+    // Find orders that contain any of the seller's products, are paid, and delivered
+    const orders = await Order.find({
+      "items.product": { $in: sellerProductIds },
+      paymentStatus: "paid",
+      orderStatus: "Delivered",
+    });
+    console.log("Orders found for revenue calculation:", orders.length);
+
+    let totalRevenue = 0;
+
+    for (const order of orders) {
+      for (const item of order.items) {
+        if (sellerProductIds.includes(item.product.toString())) {
+          const product = await Product.findById(item.product);
+          if (product) {
+            const itemPrice = product.discountPrice || product.price;
+            totalRevenue += itemPrice * item.quantity;
+            console.log(`Adding ${itemPrice} * ${item.quantity} to revenue. Current total: ${totalRevenue}`);
+          }
+        }
+      }
+    }
+
+    console.log("Final Total Revenue:", totalRevenue);
+    return res.status(200).json({ totalRevenue });
+  } catch (err) {
+    console.error("Error fetching seller revenue:", err);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+
+
 export {
   placeOrder,
   getUserOrders,
   getAllOrders,
   updateOrderStatus,
-  updateOrderItemStatus,
+  updateOrderStatusBySeller,
   createRazorpayOrder,
   handleRazorpayWebhook,
   verifyRazorpayPayment,
+  getSellerOrders,
+  getSellerRevenue,
 };

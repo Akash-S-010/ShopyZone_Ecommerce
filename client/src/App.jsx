@@ -29,6 +29,7 @@ import AdminProfilePage from './pages/admin/AdminProfilePage';
 import AdminPrivateRoute from './routes/AdminPrivateRoute';
 import AdminLayout from './layouts/admin/AdminLayout';
 import SellerDashboardPage from './pages/seller/SellerDashboardPage';
+import SellerOrdersPage from './pages/seller/SellerOrdersPage';
 import AdminDashboardPage from './pages/admin/AdminDashboardPage';
 import HomePage from './pages/user/HomePage';
 import ProductDetailPage from './pages/user/ProductDetailPage';
@@ -93,6 +94,7 @@ const App = () => {
             <Route path="products" element={<SellerProductsPage />} />
             <Route path="products/create" element={<CreateProductPage />} />
             <Route path="profile" element={<SellerProfilePage />} />
+            <Route path="orders" element={<SellerOrdersPage />} />
             {/* Add more seller-specific routes here */}
           </Route>
         </Route>

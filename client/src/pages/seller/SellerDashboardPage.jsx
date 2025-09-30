@@ -9,25 +9,33 @@ import Loader from '../../components/shared/Loader';
 const SellerDashboardPage = () => {
   const { seller } = useSellerAuthStore();
   const [productCount, setProductCount] = useState(0);
+  const [orderCount, setOrderCount] = useState(0);
+  const [sellerRevenue, setSellerRevenue] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const fetchProductCount = async () => {
+    const fetchProductAndOrderCounts = async () => {
       try {
         setIsLoading(true);
-        const res = await axios.get('/seller/products');
-        setProductCount(res.data.length);
+        const productRes = await axios.get('/seller/products');
+        setProductCount(productRes.data.length);
+
+        const orderRes = await axios.get('/orders/seller');
+        setOrderCount(orderRes.data.length);
+
+        const revenueRes = await axios.get('/orders/seller/revenue');
+        setSellerRevenue(revenueRes.data.totalRevenue);
       } catch (err) {
-        setError(err.response?.data?.message || 'Failed to fetch product count');
-        toast.error(err.response?.data?.message || 'Failed to fetch product count');
+        setError(err.response?.data?.message || 'Failed to fetch dashboard data');
+        toast.error(err.response?.data?.message || 'Failed to fetch dashboard data');
       } finally {
         setIsLoading(false);
       }
     };
 
     if (seller) {
-      fetchProductCount();
+      fetchProductAndOrderCounts();
     }
   }, [seller]);
 
@@ -48,30 +56,34 @@ const SellerDashboardPage = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
         {/* Total Products Card */}
-        <div className="bg-white shadow-lg rounded-lg p-6 flex items-center justify-between transition-transform transform hover:scale-105">
+        <Link to="/seller/products" className="bg-white shadow-lg rounded-lg p-6 flex items-center justify-between transition-transform transform hover:scale-105 cursor-pointer">
           <div>
             <p className="text-gray-500 text-sm font-medium">Total Products</p>
             <p className="text-3xl font-bold text-gray-900">{productCount}</p>
           </div>
           <Package className="text-indigo-500" size={48} />
-        </div>
-
-        {/* Add New Product Card */}
-        <Link to="/seller/products/create" className="bg-white shadow-lg rounded-lg p-6 flex items-center justify-between transition-transform transform hover:scale-105 cursor-pointer">
-          <div>
-            <p className="text-gray-500 text-sm font-medium">Add New Product</p>
-            <p className="text-3xl font-bold text-gray-900">+</p>
-          </div>
-          <PlusCircle className="text-green-500" size={48} />
         </Link>
 
-        {/* View Profile Card */}
-        <Link to="/seller/profile" className="bg-white shadow-lg rounded-lg p-6 flex items-center justify-between transition-transform transform hover:scale-105 cursor-pointer">
+        {/* Total Revenue Card */}
+        <div className="bg-white shadow-lg rounded-lg p-6 flex items-center justify-between transition-transform transform hover:scale-105">
           <div>
-            <p className="text-gray-500 text-sm font-medium">View Profile</p>
-            <p className="text-3xl font-bold text-gray-900"><User /></p>
+            <p className="text-gray-500 text-sm font-medium">Total Revenue</p>
+            <p className="text-3xl font-bold text-gray-900">₹{sellerRevenue.toFixed(2)}</p>
           </div>
-          <User className="text-blue-500" size={48} />
+          <Package className="text-green-500" size={48} />
+        </div>
+
+
+
+
+
+        {/* Orders Card */}
+        <Link to="/seller/orders" className="bg-white shadow-lg rounded-lg p-6 flex items-center justify-between transition-transform transform hover:scale-105 cursor-pointer">
+          <div>
+            <p className="text-gray-500 text-sm font-medium">Orders</p>
+            <p className="text-3xl font-bold text-gray-900">{orderCount}</p>
+          </div>
+          <Package className="text-purple-500" size={48} />
         </Link>
       </div>
 

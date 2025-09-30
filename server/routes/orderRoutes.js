@@ -1,5 +1,5 @@
 import express from 'express';
-import { placeOrder, getUserOrders, getAllOrders, updateOrderStatus, updateOrderItemStatus, createRazorpayOrder, handleRazorpayWebhook, verifyRazorpayPayment } from '../controllers/orderController.js';
+import { placeOrder, getUserOrders, getAllOrders, updateOrderStatus, updateOrderStatusBySeller, createRazorpayOrder, handleRazorpayWebhook, verifyRazorpayPayment, getSellerOrders, getSellerRevenue } from '../controllers/orderController.js';
 import { checkAuth } from '../middlewares/authMiddleware.js';
 import { checkAdmin } from '../middlewares/adminMiddleware.js';
 import { checkSeller } from '../middlewares/sellerMiddleware.js';
@@ -20,6 +20,9 @@ router.get('/', checkAdmin, getAllOrders);
 router.put('/status', checkAdmin, updateOrderStatus);
 
 // Seller routes
-router.put('/item-status', checkSeller, updateOrderItemStatus);
+router.put('/seller/status', checkSeller, updateOrderStatusBySeller);
+router.get('/seller', checkSeller, getSellerOrders);
+router.get('/seller/revenue', checkSeller, getSellerRevenue);
+
 
 export default router;
