@@ -4,6 +4,7 @@ import { Search, SlidersHorizontal } from 'lucide-react';
 import axios from '../../config/axios';
 import ProductCard from '../../components/user/ProductCard';
 import Loader from '../../components/shared/Loader';
+import { categoriesData } from '../../utils/categories';
 
 const AllProductsPage = () => {
   const [products, setProducts] = useState([]);
@@ -147,17 +148,16 @@ const AllProductsPage = () => {
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
                 <select
-                  name="category"
-                  value={filters.category}
-                  onChange={handleFilterChange}
-                  className="w-full px-3 py-2 border rounded-md"
-                >
-                  <option value="">All Categories</option>
-                  <option value="Electronics">Electronics</option>
-                  <option value="Clothing">Clothing</option>
-                  <option value="Books">Books</option>
-                  <option value="Home">Home & Living</option>
-                </select>
+                    name="category"
+                    value={filters.category}
+                    onChange={handleFilterChange}
+                    className="w-full px-3 py-2 border rounded-md"
+                  >
+                    <option value="">All Categories</option>
+                    {Object.keys(categoriesData).map(cat => (
+                      <option key={cat} value={cat}>{cat}</option>
+                    ))}
+                  </select>
               </div>
             </div>
             <div className="mt-4 flex justify-end">

@@ -5,20 +5,10 @@ import cloudinary from '../config/cloudinary.js';
 // -------- CREATE PRODUCT --------
 export const createProduct = async (req, res, next) => {
   try {
-    const { name, description, brand, category, secondaryCategory, tertiaryCategory, price, discountPrice, stock } = req.body;
-    let { variants } = req.body;
+    const { name, description, brand, category, secondaryCategory, tertiaryCategory, price, discountPrice } = req.body;
 
     if (!name || !req.files || req.files.length === 0 || !category || !price) {
       return res.status(400).json({ message: "Name, images, category, and price are required" });
-    }
-
-    // Parse variants if it's a JSON string (from FormData)
-    if (variants && typeof variants === 'string') {
-      try {
-        variants = JSON.parse(variants);
-      } catch (e) {
-        return res.status(400).json({ message: "Invalid variants format" });
-      }
     }
 
     const imageUrls = [];
@@ -48,8 +38,6 @@ export const createProduct = async (req, res, next) => {
       tertiaryCategory,
       price,
       discountPrice,
-      stock,
-      variants,
       seller: sellerId,
     });
 
@@ -128,7 +116,41 @@ export const getProductById = async (req, res, next) => {
 // -------- GET ALL PRODUCTS (PUBLIC) --------
 export const getAllProducts = async (req, res, next) => {
   try {
-    const products = await Product.find({}).populate("seller", "name");
+    const { search, sort, minPrice, maxPrice, category } = req.query;
+    let query = {};
+
+    if (search) {
+      query.$or = [
+        { name: { $regex: search, $options: "i" } },
+        { description: { $regex: search, $options: "i" } },
+      ];
+    }
+
+    if (minPrice || maxPrice) {
+      query.discountPrice = {};
+      if (minPrice) query.discountPrice.$gte = parseFloat(minPrice);
+      if (maxPrice) query.discountPrice.$lte = parseFloat(maxPrice);
+    }
+
+    if (category) {
+      query.category = category;
+    }
+
+    let sortOptions = {};
+    if (sort) {
+      if (sort === "price") {
+        sortOptions.discountPrice = 1;
+      } else if (sort === "-price") {
+        sortOptions.discountPrice = -1;
+      } else if (sort === "-createdAt") {
+        sortOptions.createdAt = -1;
+      }
+    }
+
+    const products = await Product.find(query)
+      .sort(sortOptions)
+      .populate("seller", "name");
+
     res.json(products);
   } catch (err) {
     next(err);

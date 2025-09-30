@@ -14,17 +14,6 @@ const productSchema = new mongoose.Schema(
 
     price: { type: Number, required: true },
     discountPrice: { type: Number },
-    stock: { type: Number, default: 0 },
-
-    variants: [
-      {
-        size: { type: [String] },     // fashion
-        color: { type: String },    // fashion
-        ram: { type: [String] },      // electronics
-        storage: { type: [String] },  // electronics
-        quantity: { type: Number, default: 0 },
-      },
-    ],
 
     seller: { type: mongoose.Schema.Types.ObjectId, ref: "Seller", required: true },
 

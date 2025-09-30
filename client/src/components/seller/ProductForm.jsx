@@ -1,23 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Loader from '../shared/Loader';
 
-const categoriesData = {
-  "Fashion": {
-    "Men": ["Shirt", "Pants", "Shoes", "Jacket", "Hoodie", "Jeans", "Shorts", "Sweater", "Coat", "Blazer", "T-Shirt", "Vest", "Socks", "Underwear", "Swimwear", "Activewear", "Sleepwear", "Suit", "Tie", "Belt", "Wallet", "Hat", "Cap", "Scarf", "Gloves", "Sunglasses", "Watches", "Cufflinks", "Pocket Square", "Tie Clip", "Lapel Pin", "Backpack", "Messenger Bag", "Briefcase", "Duffel Bag", "Tote Bag", "Fanny Pack", "Crossbody Bag", "Clutch", "Wristlet", "Shoe Care", "Jewelry", "Keychains", "Umbrella", "Face Mask"],
-    "Women": ["Dress", "Skirt", "Heels", "Blouse", "Trousers", "Jeans", "Shorts", "Cardigan", "Sweater", "Coat", "Jacket", "Blazer", "Top", "Leggings", "Lingerie", "Swimsuit", "Activewear", "Pajamas", "Jumpsuit", "Romper", "Socks", "Hosiery", "Scarf", "Hat", "Gloves", "Sunglasses", "Watches", "Jewelry", "Handbag", "Tote Bag", "Clutch", "Crossbody Bag", "Wallet", "Belt", "Hair Accessories", "Umbrella", "Face Mask"],
-    "Kids": ["T-Shirt", "Shorts", "Pants", "Dress", "Skirt", "Jacket", "Sweater", "Shoes", "Socks", "Pajamas", "Swimwear", "Hats", "Gloves", "Scarf", "Underwear", "Activewear", "Sleepwear", "Jumpsuit", "Romper", "Coat", "Blazer", "Vest", "Overalls", "Leggings", "Hoodie", "Sweatshirt", "Jeans", "Sandals", "Boots", "Sneakers", "Slippers", "Raincoat", "Umbrella", "Face Mask"]
-  },
-  "Electronics": {
-    "Mobiles": ["Smartphones", "Feature Phones", "Accessories"],
-    "Laptops": ["Gaming Laptops", "Ultrabooks", "Convertibles", "Chromebooks", "Workstations", "Accessories"],
-    "Cameras": ["DSLR", "Mirrorless", "Point and Shoot", "Action Cameras", "Drones", "Accessories"],
-    "Audio": ["Headphones", "Earbuds", "Speakers", "Soundbars", "Microphones", "Accessories"],
-    "Wearable Tech": ["Smartwatches", "Fitness Trackers", "VR Headsets", "Smart Glasses", "Accessories"],
-    "Gaming": ["Consoles", "PC Games", "Console Games", "Accessories", "Controllers"],
-    "Home Appliances": ["Televisions", "Refrigerators", "Washing Machines", "Air Conditioners", "Microwaves", "Vacuum Cleaners", "Kitchen Appliances", "Smart Home Devices", "Accessories"],
-    "Computer Accessories": ["Monitors", "Keyboards", "Mice", "Printers", "External Storage", "Routers", "Webcams", "Software", "Networking Devices", "Cables & Adapters"]
-  },
-};
+import { categoriesData } from '../../utils/categories';
 
 const ProductForm = ({ initialData = {}, onSubmit, isLoading, buttonText }) => {
   const [formData, setFormData] = useState(() => {
@@ -30,8 +14,6 @@ const ProductForm = ({ initialData = {}, onSubmit, isLoading, buttonText }) => {
       tertiaryCategory: '',
       price: '',
       discountPrice: '',
-      stock: '',
-      variants: [],
       images: [], // This will hold File objects
     };
 
@@ -42,12 +24,6 @@ const ProductForm = ({ initialData = {}, onSubmit, isLoading, buttonText }) => {
         images: [], // Clear file inputs for editing, users re-upload if needed
         secondaryCategory: initialData.secondaryCategory || '',
         tertiaryCategory: initialData.tertiaryCategory || '',
-        variants: initialData.variants ? initialData.variants.map(variant => ({
-          ...variant,
-          size: Array.isArray(variant.size) ? variant.size.join(', ') : variant.size,
-          ram: Array.isArray(variant.ram) ? variant.ram.join(', ') : variant.ram,
-          storage: Array.isArray(variant.storage) ? variant.storage.join(', ') : variant.storage,
-        })) : [],
       };
     }
     return initialState;
@@ -94,50 +70,12 @@ const ProductForm = ({ initialData = {}, onSubmit, isLoading, buttonText }) => {
     setImagePreviews(prev => prev.filter((_, index) => index !== indexToRemove));
   };
 
-  const handleVariantChange = (index, e) => {
-    const { name, value } = e.target;
-    const updatedVariants = formData.variants.map((variant, i) =>
-      i === index ? { ...variant, [name]: value } : variant
-    );
-    setFormData(prev => ({
-      ...prev, variants: updatedVariants.map(variant => {
-        const newVariant = { ...variant };
-        if (newVariant.size && typeof newVariant.size === 'string') {
-          newVariant.size = newVariant.size.split(',').map(s => s.trim()).filter(s => s.length > 0);
-        }
-        if (newVariant.ram && typeof newVariant.ram === 'string') {
-          newVariant.ram = newVariant.ram.split(',').map(s => s.trim()).filter(s => s.length > 0);
-        }
-        if (newVariant.storage && typeof newVariant.storage === 'string') {
-          newVariant.storage = newVariant.storage.split(',').map(s => s.trim()).filter(s => s.length > 0);
-        }
-        return newVariant;
-      })
-    }));
-  };
-
-  const addVariant = () => {
-    setFormData(prev => ({
-      ...prev,
-      variants: [...prev.variants, { size: '', color: '', ram: '', storage: '', quantity: '' }],
-    }));
-  };
-
-  const removeVariant = (indexToRemove) => {
-    setFormData(prev => ({
-      ...prev,
-      variants: prev.variants.filter((_, index) => index !== indexToRemove),
-    }));
-  };
-
   const handleSubmit = (e) => {
     e.preventDefault();
     const data = new FormData();
     for (const key in formData) {
       if (key === 'images') {
         formData.images.forEach(image => data.append('images', image));
-      } else if (key === 'variants') {
-        data.append('variants', JSON.stringify(formData.variants));
       } else {
         data.append(key, formData[key]);
       }
@@ -147,10 +85,6 @@ const ProductForm = ({ initialData = {}, onSubmit, isLoading, buttonText }) => {
 
   const secondaryOptions = formData.category ? Object.keys(categoriesData[formData.category]) : [];
   const tertiaryOptions = (formData.category && formData.secondaryCategory) ? categoriesData[formData.category][formData.secondaryCategory] : [];
-
-  console.log('formData.category:', formData.category);
-  console.log('formData.secondaryCategory:', formData.secondaryCategory);
-  console.log('secondaryOptions:', secondaryOptions);
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6 bg-white p-6 rounded-lg shadow-md">
@@ -233,11 +167,6 @@ const ProductForm = ({ initialData = {}, onSubmit, isLoading, buttonText }) => {
       </div>
 
       <div>
-        <label htmlFor="stock" className="block text-sm font-medium text-gray-700">Stock</label>
-        <input type="number" id="stock" name="stock" value={formData.stock} onChange={handleChange} className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2" />
-      </div>
-
-      <div>
         <label className="block text-sm font-medium text-gray-700">Product Images</label>
         <input type="file" multiple onChange={handleImageChange} className="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" />
         <div className="mt-2 grid grid-cols-4 gap-4">
@@ -250,21 +179,6 @@ const ProductForm = ({ initialData = {}, onSubmit, isLoading, buttonText }) => {
             </div>
           ))}
         </div>
-      </div>
-
-      <div>
-        <h4 className="text-lg font-medium text-gray-900 mb-2">Variants</h4>
-        {formData.variants.map((variant, index) => (
-          <div key={index} className="flex space-x-4 mb-4 p-4 border border-gray-200 rounded-md">
-            <input type="text" name="size" placeholder="Size" value={variant.size} onChange={(e) => handleVariantChange(index, e)} className="flex-1 border border-gray-300 rounded-md shadow-sm p-2" />
-            <input type="text" name="color" placeholder="Color" value={variant.color} onChange={(e) => handleVariantChange(index, e)} className="flex-1 border border-gray-300 rounded-md shadow-sm p-2" />
-            <input type="text" name="ram" placeholder="RAM" value={variant.ram} onChange={(e) => handleVariantChange(index, e)} className="flex-1 border border-gray-300 rounded-md shadow-sm p-2" />
-            <input type="text" name="storage" placeholder="Storage" value={variant.storage} onChange={(e) => handleVariantChange(index, e)} className="flex-1 border border-gray-300 rounded-md shadow-sm p-2" />
-            <input type="number" name="quantity" placeholder="Quantity" value={variant.quantity} onChange={(e) => handleVariantChange(index, e)} className="flex-1 border border-gray-300 rounded-md shadow-sm p-2" />
-            <button type="button" onClick={() => removeVariant(index)} className="px-3 py-1 bg-red-500 text-white rounded-md hover:bg-red-600">Remove</button>
-          </div>
-        ))}
-        <button type="button" onClick={addVariant} className="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600">Add Variant</button>
       </div>
 
       <button type="submit" disabled={isLoading} className="w-full px-4 py-2 text-white bg-blue-600 rounded-md hover:bg-blue-700">
