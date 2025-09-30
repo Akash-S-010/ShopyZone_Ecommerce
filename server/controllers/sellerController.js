@@ -122,8 +122,8 @@ export const loginSeller = async (req, res, next) => {
 
     res.cookie("token", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
+      secure: true,
+      sameSite: "None",
     });
 
     return res.status(200).json({
@@ -209,8 +209,8 @@ export const resendSellerOTP = async (req, res, next) => {
 export const logoutSeller = (req, res) => {
   res.clearCookie("token",{
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "strict",
+    secure: true,
+    sameSite: "None",
   });
   res.status(200).json({ message: "Logged out successfully" });
 };

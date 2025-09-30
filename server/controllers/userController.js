@@ -69,8 +69,8 @@ export const signupUser = async (req, res, next) => {
       const token = generateToken(user._id, user);
       res.cookie("token", token, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "strict",
+        secure: true,
+        sameSite: "None",
         maxAge: 10 * 60 * 1000, // 15 minutes
       });
       return res.status(201).json({ message: "Signup successful. Please verify OTP sent to your email." });
@@ -185,8 +185,8 @@ export const loginUser = async (req, res, next) => {
 
     res.cookie("token", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
+      secure: true,
+      sameSite: "None",
     });
 
     return res.status(200).json({
