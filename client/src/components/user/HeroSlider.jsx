@@ -4,21 +4,21 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 const slides = [
   {
     id: 1,
-    image: 'https://via.placeholder.com/1200x400/FF5733/FFFFFF?text=Summer+Sale',
+    image: 'https://t3.ftcdn.net/jpg/04/65/46/52/360_F_465465254_1pN9MGrA831idD6zIBL7q8rnZZpUCQTy.jpg',
     title: 'Summer Sale Collection',
     description: 'Discover our hottest deals this season!',
     link: '/products?category=summer-sale',
   },
   {
     id: 2,
-    image: 'https://via.placeholder.com/1200x400/33FF57/FFFFFF?text=New+Arrivals',
+    image: 'https://t4.ftcdn.net/jpg/02/49/50/15/360_F_249501541_XmWdfAfUbWAvGxBwAM0ba2aYT36ntlpH.jpg',
     title: 'New Arrivals',
     description: 'Fresh styles just for you.',
     link: '/products?sort=-createdAt',
   },
   {
     id: 3,
-    image: 'https://via.placeholder.com/1200x400/3357FF/FFFFFF?text=Electronics+Deals',
+    image: 'https://img.freepik.com/free-vector/gradient-shopping-discount-horizontal-sale-banner_23-2150321996.jpg?semt=ais_hybrid&w=740&q=80',
     title: 'Electronics Extravaganza',
     description: 'Gadgets and more at unbeatable prices.',
     link: '/products?category=electronics',
