@@ -43,18 +43,26 @@ const HomePage = () => {
       }
 
       {/* App Download Section */}
-      <section className="bg-indigo-700 text-white py-16 px-4 rounded-lg mt-12">
-        <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-4xl font-bold mb-4">Shop Smarter with Our App</h2>
-          <p className="text-xl mb-8">
+      <section
+        className="relative bg-gradient-to-r from-indigo-700 to-purple-700 text-white py-16 px-4 rounded-lg mt-12 overflow-hidden"
+        style={{
+          backgroundImage: `url('https://images.unsplash.com/photo-1517336714731-489689fd1ca8?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D')`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+        }}
+      >
+        <div className="absolute inset-0 bg-black opacity-50"></div> {/* Overlay for readability */}
+        <div className="relative max-w-4xl mx-auto text-center z-10">
+          <h2 className="text-4xl md:text-5xl font-extrabold mb-4 leading-tight">Shop Smarter with Our App</h2>
+          <p className="text-lg md:text-xl mb-8 opacity-90">
             Download the ShopyZone app for exclusive deals, faster checkout, and a personalized shopping experience.
           </p>
-          <div className="flex justify-center space-x-6">
-            <a href="#" className="inline-block">
-              <img src="https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg" alt="Download on the App Store" className="h-14" />
+          <div className="flex flex-col sm:flex-row justify-center items-center space-y-4 sm:space-y-0 sm:space-x-6">
+            <a href="#" className="inline-block transition-transform transform hover:scale-105">
+              <img src="https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg" alt="Download on the App Store" className="h-14 sm:h-16" />
             </a>
-            <a href="#" className="inline-block">
-              <img src="https://play.google.com/intl/en_us/badges/images/generic/en_badge_web_generic.png" alt="Get it on Google Play" className="h-14" />
+            <a href="#" className="inline-block transition-transform transform hover:scale-105">
+              <img src="https://play.google.com/intl/en_us/badges/images/generic/en_badge_web_generic.png" alt="Get it on Google Play" className="h-14 sm:h-16" />
             </a>
           </div>
         </div>
