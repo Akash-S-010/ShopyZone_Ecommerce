@@ -9,7 +9,7 @@ const CheckoutPage = () => {
   const navigate = useNavigate();
   const items = useCartStore((s) => s.cart) || [];
   const getCart = useCartStore((s) => s.getCart);
-  const clearCart = useCartStore((s) => s.clearCart);
+  const clearCart = useCartStore((s) => s.clear);
   const addresses = useAddressStore((s) => s.addresses) || [];
   const hydrateAddresses = useAddressStore((s) => s.hydrate);
 
