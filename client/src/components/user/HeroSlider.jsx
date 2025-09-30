@@ -21,7 +21,7 @@ const slides = [
   {
     id: 3,
     image:
-      "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=1200&auto=format&fit=crop&q=80",
+      "https://static.vecteezy.com/system/resources/thumbnails/004/707/493/small/online-shopping-on-phone-buy-sell-business-digital-web-banner-application-money-advertising-payment-ecommerce-illustration-search-vector.jpg",
     title: "Electronics Extravaganza",
     description: "Gadgets and more at unbeatable prices.",
     link: "/products?category=electronics",
