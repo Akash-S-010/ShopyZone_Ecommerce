@@ -1,27 +1,30 @@
-import { useState, useEffect } from 'react';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { useState, useEffect } from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 const slides = [
   {
     id: 1,
-    image: 'https://t3.ftcdn.net/jpg/04/65/46/52/360_F_465465254_1pN9MGrA831idD6zIBL7q8rnZZpUCQTy.jpg',
-    title: 'Summer Sale Collection',
-    description: 'Discover our hottest deals this season!',
-    link: '/products?category=summer-sale',
+    image:
+      "https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?w=1200&auto=format&fit=crop&q=80",
+    title: "Summer Sale Collection",
+    description: "Discover our hottest deals this season!",
+    link: "/products?category=summer-sale",
   },
   {
     id: 2,
-    image: 'https://t4.ftcdn.net/jpg/02/49/50/15/360_F_249501541_XmWdfAfUbWAvGxBwAM0ba2aYT36ntlpH.jpg',
-    title: 'New Arrivals',
-    description: 'Fresh styles just for you.',
-    link: '/products?sort=-createdAt',
+    image:
+      "https://images.unsplash.com/photo-1521335629791-ce4aec67dd47?w=1200&auto=format&fit=crop&q=80",
+    title: "New Arrivals",
+    description: "Fresh styles just for you.",
+    link: "/products?sort=-createdAt",
   },
   {
     id: 3,
-    image: 'https://img.freepik.com/free-vector/gradient-shopping-discount-horizontal-sale-banner_23-2150321996.jpg?semt=ais_hybrid&w=740&q=80',
-    title: 'Electronics Extravaganza',
-    description: 'Gadgets and more at unbeatable prices.',
-    link: '/products?category=electronics',
+    image:
+      "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=1200&auto=format&fit=crop&q=80",
+    title: "Electronics Extravaganza",
+    description: "Gadgets and more at unbeatable prices.",
+    link: "/products?category=electronics",
   },
 ];
 
@@ -37,11 +40,9 @@ const HeroSlider = () => {
   };
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      nextSlide();
-    }, 5000); // Change slide every 5 seconds
+    const interval = setInterval(nextSlide, 5000);
     return () => clearInterval(interval);
-  }, [currentSlide]);
+  }, []);
 
   return (
     <div className="relative w-full overflow-hidden rounded-lg shadow-lg mb-8">
@@ -51,9 +52,15 @@ const HeroSlider = () => {
       >
         {slides.map((slide) => (
           <div key={slide.id} className="w-full flex-shrink-0 relative">
-            <img src={slide.image} alt={slide.title} className="w-full h-96 object-cover border-2 border-red-500" />
+            <img
+              src={slide.image}
+              alt={slide.title}
+              className="w-full h-96 object-cover"
+            />
             <div className="absolute inset-0 bg-black bg-opacity-40 flex flex-col items-center justify-center text-white p-4">
-              <h2 className="text-4xl font-bold mb-2 text-center">{slide.title}</h2>
+              <h2 className="text-4xl font-bold mb-2 text-center">
+                {slide.title}
+              </h2>
               <p className="text-xl mb-4 text-center">{slide.description}</p>
               <a
                 href={slide.link}
@@ -86,7 +93,9 @@ const HeroSlider = () => {
           <button
             key={index}
             onClick={() => setCurrentSlide(index)}
-            className={`h-3 w-3 rounded-full ${index === currentSlide ? 'bg-indigo-600' : 'bg-gray-300'}`}
+            className={`h-3 w-3 rounded-full ${
+              index === currentSlide ? "bg-indigo-600" : "bg-gray-300"
+            }`}
           ></button>
         ))}
       </div>
