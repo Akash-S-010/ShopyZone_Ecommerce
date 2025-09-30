@@ -51,7 +51,7 @@ const HeroSlider = () => {
       >
         {slides.map((slide) => (
           <div key={slide.id} className="w-full flex-shrink-0 relative">
-            <img src={slide.image} alt={slide.title} className="w-full h-96 object-cover" />
+            <img src={slide.image} alt={slide.title} className="w-full h-96 object-cover border-2 border-red-500" />
             <div className="absolute inset-0 bg-black bg-opacity-40 flex flex-col items-center justify-center text-white p-4">
               <h2 className="text-4xl font-bold mb-2 text-center">{slide.title}</h2>
               <p className="text-xl mb-4 text-center">{slide.description}</p>
