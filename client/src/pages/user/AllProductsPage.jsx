@@ -20,7 +20,7 @@ const AllProductsPage = () => {
   const fetchProducts = useCallback(async () => {
     try {
       setLoading(true);
-      let url = '/products?';
+      let url = '/product/all?';
       if (searchTerm) url += `search=${searchTerm}&`;
       if (sortBy) url += `sort=${sortBy}&`;
       if (filters.minPrice) url += `minPrice=${filters.minPrice}&`;
@@ -28,7 +28,8 @@ const AllProductsPage = () => {
       if (filters.category) url += `category=${filters.category}&`;
 
       const { data } = await axios.get(url);
-      setProducts(data || []);
+      console.log('API Response:', data); // Debug log
+      setProducts(Array.isArray(data) ? data : data.products || []); // Ensure proper handling of the response
     } catch (error) {
       console.error('Error fetching products:', error);
     } finally {

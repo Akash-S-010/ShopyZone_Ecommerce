@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import axios from 'axios';
+import axios from '../../config/axios.js';
 import ProductCard from '../../components/user/ProductCard';
 import HeroSlider from '../../components/user/HeroSlider';
 import Loader from '../../components/shared/Loader';
@@ -13,8 +13,8 @@ const HomePage = () => {
   const fetchProducts = useCallback(async () => {
     try {
       setLoading(true);
-      const { data } = await axios.get(`/api/product/all`);
-      setProducts(Array.isArray(data) ? data : data.products || []);
+      const { data } = await axios.get(`/product/all`); // Correctly destructure `data`
+      setProducts(Array.isArray(data) ? data : data.products || []); // Handle the response properly
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to load products');
     } finally {
@@ -64,5 +64,3 @@ const HomePage = () => {
 };
 
 export default HomePage;
-
-
