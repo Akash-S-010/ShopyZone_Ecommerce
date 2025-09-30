@@ -7,10 +7,10 @@ import useAddressStore from "../../store/addressStore";
 
 const CheckoutPage = () => {
   const navigate = useNavigate();
-  const items = useCartStore((s) => s.cart) || []; // Ensure items is always an array
+  const items = useCartStore((s) => s.cart) || [];
   const getCart = useCartStore((s) => s.getCart);
-  const clearCart = useCartStore((s) => s.clear);
-  const addresses = useAddressStore((s) => s.addresses) || []; // Ensure addresses is always an array
+  const clearCart = useCartStore((s) => s.clearCart);
+  const addresses = useAddressStore((s) => s.addresses) || [];
   const hydrateAddresses = useAddressStore((s) => s.hydrate);
 
   const [addressId, setAddressId] = useState("");
@@ -109,20 +109,32 @@ const CheckoutPage = () => {
           order_id: orderId,
           handler: async function (response) {
             try {
-              await axios.post("/orders/razorpay/verify-payment", {
-                razorpay_order_id: response.razorpay_order_id,
-                razorpay_payment_id: response.razorpay_payment_id,
-                razorpay_signature: response.razorpay_signature,
-                dbOrderId: dbOrderId,
-              });
-              clearCart();
-              setPlacing(false);
-              navigate("/orders");
+              const { data } = await axios.post(
+                "/orders/razorpay/verify-payment",
+                {
+                  razorpay_order_id: response.razorpay_order_id,
+                  razorpay_payment_id: response.razorpay_payment_id,
+                  razorpay_signature: response.razorpay_signature,
+                  dbOrderId: dbOrderId,
+                }
+              );
+
+              if (data.success) {
+                clearCart();
+                setPlacing(false);
+                navigate("/orders");
+              } else {
+                throw new Error(
+                  data.message || "Payment verification failed"
+                );
+              }
             } catch (err) {
               console.error("Client-side payment verification error:", err);
               setPlacing(false);
               alert(
-                err?.response?.data?.message || "Payment verification failed"
+                err?.response?.data?.message ||
+                  err.message ||
+                  "Payment verification failed"
               );
             }
           },

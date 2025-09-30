@@ -46,7 +46,7 @@ app.use(errorHandler);
 // Start server after DB connection
 connectDB().then(() => {
     app.listen(PORT, () => {
-        console.log(`Server running on port ${PORT}`);
+        console.log(`Server running on port ${PORT} - Version 2.0`);
     });
 }).catch(err => {
     console.error('Failed to connect to the database', err);

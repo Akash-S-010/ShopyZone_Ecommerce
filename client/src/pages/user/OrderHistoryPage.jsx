@@ -39,7 +39,8 @@ const OrderHistoryPage = () => {
                 <span className="text-sm text-gray-600">{new Date(order.createdAt).toLocaleDateString()}</span>
               </div>
               <p className="text-gray-700">Total: ₹{order.totalPrice.toFixed(2)}</p>
-              <p className="text-gray-700">Status: {order.orderStatus}</p>
+              <p className="text-gray-700">Order Status: {order.orderStatus}</p>
+              <p className="text-gray-700">Payment Status: {order.paymentStatus}</p>
               <div className="mt-2">
                 <h3 className="font-medium">Items:</h3>
                 <ul className="list-disc list-inside">

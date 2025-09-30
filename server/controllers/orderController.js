@@ -17,7 +17,7 @@ const placeOrder = async (req, res) => {
     const user = req.user;
     const { paymentType, address } = req.body;
 
-    if (!paymentType || !["COD", "Razorpay"].includes(paymentType)) {
+    if (!paymentType || !["Razorpay"].includes(paymentType)) {
       return res.status(400).json({ message: "Valid payment type is required" });
     }
 
@@ -46,7 +46,7 @@ const placeOrder = async (req, res) => {
         product: product._id,
         quantity: cartItem.quantity,
         itemStatus: "Pending",
-        paymentStatus: paymentType === "COD" ? "pending" : "paid",
+        paymentStatus: "pending",
       });
     }
 
@@ -57,7 +57,7 @@ const placeOrder = async (req, res) => {
       totalPrice,
       address,
       paymentType,
-      paymentStatus: paymentType === "COD" ? "pending" : "pending",
+      paymentStatus: "pending",
     });
 
     // Reduce stock
@@ -154,11 +154,6 @@ const updateOrderItemStatus = async (req, res) => {
 
     item.itemStatus = status;
 
-    // If COD and item is delivered, mark payment as paid for this item
-    if (order.paymentType === "COD" && status === "Delivered") {
-      item.paymentStatus = "paid";
-    }
-
     await order.save();
 
     return res.status(200).json({ message: "Order item status updated", order });
@@ -213,6 +208,7 @@ const createRazorpayOrder = async (req, res, next) => {
       currency: razorpayOrder.currency,
       amount: razorpayOrder.amount,
       dbOrderId: order._id, // Return our internal order ID as well
+      key: process.env.RAZORPAY_KEY_ID,
     });
   } catch (error) {
     console.error("Error creating Razorpay order:", error);
@@ -224,11 +220,17 @@ const createRazorpayOrder = async (req, res, next) => {
 const handleRazorpayWebhook = async (req, res, next) => {
   try {
     const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
-    const dbOrderId = req.params.dbOrderId;
+    const dbOrderId = req.body.dbOrderId;
+
+    console.log("Webhook received:", { razorpay_order_id, razorpay_payment_id, razorpay_signature, dbOrderId });
+    console.log("RAZORPAY_KEY_SECRET:", process.env.RAZORPAY_KEY_SECRET);
 
     const shasum = crypto.createHmac("sha256", process.env.RAZORPAY_KEY_SECRET);
     shasum.update(`${razorpay_order_id}|${razorpay_payment_id}`);
     const digest = shasum.digest("hex");
+
+    console.log("Calculated digest:", digest);
+    console.log("Received signature:", razorpay_signature);
 
     if (digest === razorpay_signature) {
       const order = await Order.findById(dbOrderId);
@@ -251,6 +253,39 @@ const handleRazorpayWebhook = async (req, res, next) => {
   }
 };
 
+// ✅ Verify Razorpay Payment (for client-side handler)
+const verifyRazorpayPayment = async (req, res) => {
+  try {
+    const { razorpay_order_id, razorpay_payment_id, razorpay_signature, dbOrderId } = req.body;
+
+    // Generate signature
+    const generatedSignature = crypto
+      .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
+      .update(`${razorpay_order_id}|${razorpay_payment_id}`)
+      .digest("hex");
+
+    if (generatedSignature !== razorpay_signature) {
+      return res.status(400).json({ success: false, message: "Invalid signature" });
+    }
+
+    // Find order
+    const order = await Order.findById(dbOrderId);
+    if (!order) return res.status(404).json({ success: false, message: "Order not found" });
+
+    // Update order status
+    order.paymentStatus = "paid";
+    order.razorpayOrderId = razorpay_order_id;
+    order.razorpayPaymentId = razorpay_payment_id;
+    order.razorpaySignature = razorpay_signature;
+    await order.save();
+
+    return res.json({ success: true, message: "Payment verified successfully", order });
+  } catch (err) {
+    console.error("Error verifying Razorpay payment:", err);
+    return res.status(500).json({ success: false, message: "Internal server error" });
+  }
+};
+
 export {
   placeOrder,
   getUserOrders,
@@ -259,4 +294,5 @@ export {
   updateOrderItemStatus,
   createRazorpayOrder,
   handleRazorpayWebhook,
+  verifyRazorpayPayment,
 };
